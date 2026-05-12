@@ -1,0 +1,16 @@
+{
+  "name": "academic-risk-fuzzy-system",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build --filter=!@academic-risk/report",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "report": "pnpm --filter @academic-risk/report build"
+  },
+  "devDependencies": {
+    "turbo": "latest",
+    "typescript": "latest"
+  }
+}

@@ -1,0 +1,31 @@
+\section{Metodología}
+
+El sistema sigue el flujo clásico:
+
+\[
+\text{Entradas} \rightarrow \text{Fuzzificación} \rightarrow \text{Reglas} \rightarrow \text{Recorte} \rightarrow \text{Agregación} \rightarrow \text{Centroide}
+\]
+
+\subsection{Pseudocódigo}
+
+\begin{lstlisting}
+entrada: promedio, asistencia, entregas, participacion, examenes
+salida: riesgo academico crisp y etiqueta linguistica
+
+para cada variable de entrada:
+  calcular mu para cada conjunto linguistico
+
+para cada regla r:
+  alpha_r = minimo de los grados de sus antecedentes
+  salida_recortada_r(y) = min(alpha_r, mu_consecuente(y))
+
+para cada punto y en [0,100]:
+  mu_agregada(y) = max de todas las salidas_recortadas_r(y)
+
+riesgo = sum(y * mu_agregada(y)) / sum(mu_agregada(y))
+etiqueta = conjunto de salida con mayor pertenencia en riesgo
+\end{lstlisting}
+
+\subsection{Restricciones metodológicas}
+
+El sistema es determinista y explicable. No usa entrenamiento, redes neuronales, regresión, estadística predictiva, APIs externas ni bases de datos. Toda decisión proviene de funciones de pertenencia y reglas visibles.

@@ -1,0 +1,76 @@
+\section{Caso de prueba}
+
+Se evalúa el siguiente estudiante:
+
+\begin{longtable}{lr}
+\toprule
+Entrada & Valor\\
+\midrule
+Promedio actual & 58\\
+Asistencia & 64\\
+Entregas realizadas & 55\\
+Participación & 48\\
+Exámenes recientes & 52\\
+\bottomrule
+\end{longtable}
+
+\subsection{Fuzzificación}
+
+Con los parámetros definidos, se obtienen grados aproximados:
+
+\begin{longtable}{lll}
+\toprule
+Variable & Conjunto & Grado\\
+\midrule
+Promedio & bajo & $0.133$\\
+Promedio & regular & $0.650$\\
+Asistencia & baja & $0.400$\\
+Asistencia & media & $0.267$\\
+Entregas & insuficientes & $0.333$\\
+Entregas & parciales & $0.250$\\
+Participación & baja & $0.133$\\
+Participación & media & $0.400$\\
+Exámenes & deficientes & $0.533$\\
+Exámenes & regulares & $0.111$\\
+\bottomrule
+\end{longtable}
+
+\subsection{Activación de reglas}
+
+Ejemplos de activación:
+
+\[
+\alpha_{R1}=\min(0.133,0.400)=0.133
+\]
+
+\[
+\alpha_{R2}=\min(0.133,0.333)=0.133
+\]
+
+\[
+\alpha_{R4}=\min(0.267,0.650)=0.267
+\]
+
+\[
+\alpha_{R7}=\min(0.650,0.111)=0.111
+\]
+
+Las reglas producen salidas recortadas en los conjuntos crítico, alto y medio. La agregación final se calcula por máximo punto a punto.
+
+\subsection{Resultado}
+
+Con discretización de paso 1 en el universo $[0,100]$, el motor calcula:
+
+\[
+y^*\approx 60.37
+\]
+
+El valor pertenece principalmente al conjunto de riesgo alto. Por tanto, el resultado final es:
+
+\[
+\text{Riesgo académico} = 60.37,\quad \text{etiqueta}=\text{alto}
+\]
+
+\section{Resultados}
+
+El sistema permite observar cada etapa del razonamiento. Las reglas no se ocultan y el valor final puede rastrearse desde los grados de pertenencia hasta la salida agregada. Esto cumple el objetivo de construir un modelo transparente, determinista y defendible académicamente.

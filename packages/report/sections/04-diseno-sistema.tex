@@ -1,0 +1,74 @@
+\section{Diseño del sistema difuso}
+
+\subsection{Variables de entrada}
+
+\begin{longtable}{lll}
+\toprule
+Variable & Rango & Conjuntos lingüísticos\\
+\midrule
+Promedio actual & $[0,100]$ & bajo, regular, alto\\
+Asistencia & $[0,100]$ & baja, media, alta\\
+Entregas realizadas & $[0,100]$ & insuficientes, parciales, completas\\
+Participación & $[0,100]$ & baja, media, alta\\
+Exámenes recientes & $[0,100]$ & deficientes, regulares, buenos\\
+\bottomrule
+\end{longtable}
+
+\subsection{Variable de salida}
+
+\begin{longtable}{lll}
+\toprule
+Variable & Rango & Conjuntos lingüísticos\\
+\midrule
+Riesgo académico & $[0,100]$ & bajo, medio, alto, crítico\\
+\bottomrule
+\end{longtable}
+
+\subsection{Parámetros de pertenencia}
+
+La notación $T(a,b,c)$ indica función triangular. La notación $Z(a,b,c,d)$ indica función trapezoidal.
+
+\begin{longtable}{llll}
+\toprule
+Variable & Conjunto & Tipo & Parámetros\\
+\midrule
+Promedio & bajo & trapezoidal & $Z(0,0,45,60)$\\
+Promedio & regular & triangular & $T(45,65,80)$\\
+Promedio & alto & trapezoidal & $Z(70,85,100,100)$\\
+Asistencia & baja & trapezoidal & $Z(0,0,55,70)$\\
+Asistencia & media & triangular & $T(60,75,88)$\\
+Asistencia & alta & trapezoidal & $Z(82,92,100,100)$\\
+Entregas & insuficientes & trapezoidal & $Z(0,0,45,60)$\\
+Entregas & parciales & triangular & $T(50,70,85)$\\
+Entregas & completas & trapezoidal & $Z(78,90,100,100)$\\
+Participación & baja & trapezoidal & $Z(0,0,35,50)$\\
+Participación & media & triangular & $T(40,60,78)$\\
+Participación & alta & trapezoidal & $Z(70,85,100,100)$\\
+Exámenes & deficientes & trapezoidal & $Z(0,0,45,60)$\\
+Exámenes & regulares & triangular & $T(50,68,82)$\\
+Exámenes & buenos & trapezoidal & $Z(75,88,100,100)$\\
+Riesgo & bajo & trapezoidal & $Z(0,0,20,35)$\\
+Riesgo & medio & triangular & $T(25,45,65)$\\
+Riesgo & alto & triangular & $T(55,72,88)$\\
+Riesgo & crítico & trapezoidal & $Z(78,90,100,100)$\\
+\bottomrule
+\end{longtable}
+
+\subsection{Base de reglas}
+
+\begin{longtable}{p{0.08\linewidth}p{0.58\linewidth}p{0.26\linewidth}}
+\toprule
+Regla & Enunciado & Justificación\\
+\midrule
+R1 & IF promedio es bajo AND asistencia es baja THEN riesgo es crítico & Bajo rendimiento y ausencia elevan el riesgo.\\
+R2 & IF promedio es bajo AND entregas son insuficientes THEN riesgo es crítico & Faltan evidencias de trabajo.\\
+R3 & IF exámenes son deficientes AND promedio es bajo THEN riesgo es alto & El desempeño bajo se confirma en evaluaciones recientes.\\
+R4 & IF asistencia es media AND promedio es regular THEN riesgo es medio & Condición intermedia.\\
+R5 & IF entregas son completas AND promedio es alto THEN riesgo es bajo & Cumplimiento y rendimiento reducen riesgo.\\
+R6 & IF participación es alta AND asistencia es alta AND exámenes son buenos THEN riesgo es bajo & Evidencia académica favorable.\\
+R7 & IF promedio es regular AND exámenes son regulares THEN riesgo es medio & Desempeño aceptable pero no sólido.\\
+R8 & IF asistencia es baja AND entregas son parciales THEN riesgo es alto & Ausencia y avance incompleto elevan riesgo.\\
+R9 & IF promedio es alto AND exámenes son buenos THEN riesgo es bajo & Rendimiento sostenido.\\
+R10 & IF promedio es bajo AND participación es baja THEN riesgo es alto & Poca participación limita recuperación.\\
+\bottomrule
+\end{longtable}

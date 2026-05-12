@@ -1,0 +1,26 @@
+\section{Resumen}
+
+Este proyecto presenta un sistema difuso clásico tipo Mamdani para estimar el riesgo académico de un estudiante en una escala de 0 a 100. El sistema usa cinco variables de entrada: promedio actual, asistencia, entregas realizadas, participación y resultados recientes en exámenes. La salida es el riesgo académico, expresado como valor crisp y como etiqueta lingüística. El método no usa aprendizaje automático, redes neuronales, regresión ni modelos probabilísticos. La estimación se obtiene mediante conjuntos difusos, funciones de pertenencia, reglas lingüísticas IF-THEN, inferencia Mamdani, agregación por máximo y defuzzificación por centroide.
+
+\section{Introducción}
+
+La evaluación académica contiene incertidumbre. Un estudiante puede tener promedio regular, asistencia media y entregas parciales; clasificarlo con reglas binarias pierde información. La lógica difusa permite representar grados de pertenencia y razonamiento aproximado, idea introducida formalmente por \citet{zadeh1965fuzzy}. En este proyecto se aplica el enfoque Mamdani, basado en reglas lingüísticas y operadores min-max, siguiendo el planteamiento clásico de \citet{mamdani1974application} y \citet{mamdani1975experiment}.
+
+\section{Planteamiento del problema}
+
+La detección de riesgo académico suele depender de umbrales rígidos. Por ejemplo, un promedio de 59 puede considerarse crítico y uno de 60 regular, aunque ambos casos sean muy cercanos. Este salto discreto no modela bien la transición gradual entre bajo, regular y alto desempeño. Se requiere un sistema transparente que permita explicar cómo cada variable académica aporta al riesgo final.
+
+\section{Objetivo general}
+
+Diseñar, implementar y documentar un sistema difuso Mamdani que estime el riesgo académico de estudiantes mediante lógica difusa clásica y trazabilidad completa de reglas.
+
+\section{Objetivos específicos}
+
+\begin{itemize}
+  \item Definir variables lingüísticas de entrada y salida.
+  \item Modelar funciones triangulares y trapezoidales.
+  \item Construir una base de reglas IF-THEN coherente.
+  \item Implementar fuzzificación, inferencia, agregación y centroide.
+  \item Crear una interfaz visual que muestre el proceso completo.
+  \item Elaborar documentación académica en \LaTeX{} con referencias verificables.
+\end{itemize}

@@ -1,0 +1,74 @@
+\section{Marco teórico}
+
+\subsection{Lógica difusa clásica}
+
+La lógica difusa extiende la pertenencia clásica. En un conjunto ordinario, un elemento pertenece o no pertenece. En un conjunto difuso, la pertenencia toma valores en el intervalo $[0,1]$. Esta representación permite modelar conceptos vagos como ``bajo'', ``regular'', ``alto'' o ``crítico'' \citep{zadeh1965fuzzy,klir1995fuzzy,zimmermann2001fuzzy}.
+
+\subsection{Conjuntos difusos}
+
+Sea $X$ un universo de discurso. Un conjunto difuso $A$ sobre $X$ se define mediante una función de pertenencia:
+
+\[
+\mu_A:X\rightarrow[0,1]
+\]
+
+El valor $\mu_A(x)$ representa el grado en que $x$ pertenece al conjunto $A$.
+
+\subsection{Variables lingüísticas}
+
+Una variable lingüística toma valores expresados en lenguaje natural. Zadeh formalizó este concepto para razonamiento aproximado \citep{zadeh1975linguistic}. En este sistema, ``promedio actual'' es una variable lingüística con términos como bajo, regular y alto.
+
+\subsection{Función triangular}
+
+\[
+\mu_A(x)=
+\begin{cases}
+0, & x \leq a \\
+\dfrac{x-a}{b-a}, & a < x \leq b \\
+\dfrac{c-x}{c-b}, & b < x < c \\
+0, & x \geq c
+\end{cases}
+\]
+
+\subsection{Función trapezoidal}
+
+\[
+\mu_A(x)=
+\begin{cases}
+0, & x \leq a \\
+\dfrac{x-a}{b-a}, & a < x \leq b \\
+1, & b < x \leq c \\
+\dfrac{d-x}{d-c}, & c < x < d \\
+0, & x \geq d
+\end{cases}
+\]
+
+\subsection{Inferencia Mamdani}
+
+El enfoque Mamdani usa reglas lingüísticas y funciones de pertenencia para construir una salida difusa \citep{mamdani1975experiment}. Para una regla $r$ con antecedentes $A_1,\ldots,A_n$, el operador AND se calcula por mínimo:
+
+\[
+\alpha_r = \min(\mu_{A_1}(x_1), \mu_{A_2}(x_2), \ldots, \mu_{A_n}(x_n))
+\]
+
+La implicación Mamdani recorta el conjunto de salida:
+
+\[
+\mu_{B_r'}(y)=\min(\alpha_r, \mu_{B_r}(y))
+\]
+
+La agregación combina todas las salidas recortadas mediante máximo:
+
+\[
+\mu_B(y)=\max_{r=1}^{m} \mu_{B_r'}(y)
+\]
+
+\subsection{Defuzzificación por centroide}
+
+El valor crisp se obtiene con el centroide:
+
+\[
+y^*=\frac{\int y\mu_B(y)\,dy}{\int \mu_B(y)\,dy}
+\]
+
+Este método es común en aplicaciones de control e ingeniería difusa \citep{ross2010fuzzy}.

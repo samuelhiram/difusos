@@ -1,0 +1,67 @@
+\documentclass[12pt,letterpaper]{article}
+
+\usepackage[spanish,es-tabla]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{natbib}
+
+\geometry{margin=2.5cm}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
+\setlength{\parskip}{0.6em}
+\setlength{\parindent}{0pt}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible
+}
+
+\title{Sistema Difuso Mamdani para la Evaluación de Riesgo Académico en Estudiantes}
+\author{Samuel Hiram Castro Martinez}
+\date{12 de Mayo del 2026}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  {\Large Instituto Tecnológico de Tijuana\par}
+  \vspace{0.4cm}
+  {\large Maestría En Ciencias Computacionales\par}
+  \vspace{1.8cm}
+  {\LARGE\bfseries Sistema Difuso Mamdani para la Evaluación de Riesgo Académico en Estudiantes\par}
+  \vspace{1.8cm}
+  \begin{tabular}{rl}
+    Materia: & Sistemas Difusos\\
+    Profesor: & Prof. Oscar Castillo, Ph.D., D.Sc.\\
+    Semestre: & Enero - Junio 2026\\
+    Alumno: & Samuel Hiram Castro Martinez\\
+    Proyecto: & Sistema Difuso Mamdani para la Evaluación de Riesgo Académico en Estudiantes\\
+    Fecha: & 12 de Mayo del 2026
+  \end{tabular}
+  \vfill
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\input{sections/01-introduccion}
+\input{sections/02-marco-teorico}
+\input{sections/03-metodologia}
+\input{sections/04-diseno-sistema}
+\input{sections/05-implementacion}
+\input{sections/06-resultados}
+\input{sections/07-conclusiones}
+
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\end{document}

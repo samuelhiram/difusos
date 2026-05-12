@@ -1,0 +1,9 @@
+{
+  "name": "@academic-risk/report",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "latexmk -pdf -interaction=nonstopmode main.tex",
+    "clean": "latexmk -C"
+  }
+}
