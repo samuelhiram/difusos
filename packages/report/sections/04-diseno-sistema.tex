@@ -1,8 +1,12 @@
+% !TEX root = ../main.tex
 \section{Diseño del sistema difuso}
 
 \subsection{Variables de entrada}
 
-\begin{longtable}{lll}
+\begin{samepage}
+\begin{center}
+\small
+\begin{tabularx}{0.92\linewidth}{l l X}
 \toprule
 Variable & Rango & Conjuntos lingüísticos\\
 \midrule
@@ -12,17 +16,24 @@ Entregas realizadas & $[0,100]$ & insuficientes, parciales, completas\\
 Participación & $[0,100]$ & baja, media, alta\\
 Exámenes recientes & $[0,100]$ & deficientes, regulares, buenos\\
 \bottomrule
-\end{longtable}
+\end{tabularx}
+\end{center}
+\end{samepage}
 
 \subsection{Variable de salida}
 
-\begin{longtable}{lll}
+\begin{samepage}
+\begin{center}
+\small
+\begin{tabularx}{0.92\linewidth}{l l X}
 \toprule
 Variable & Rango & Conjuntos lingüísticos\\
 \midrule
 Riesgo académico & $[0,100]$ & bajo, medio, alto, crítico\\
 \bottomrule
-\end{longtable}
+\end{tabularx}
+\end{center}
+\end{samepage}
 
 \subsection{Parámetros de pertenencia}
 
@@ -56,10 +67,16 @@ Riesgo & crítico & trapezoidal & $Z(78,90,100,100)$\\
 
 \subsection{Base de reglas}
 
-\begin{longtable}{p{0.08\linewidth}p{0.58\linewidth}p{0.26\linewidth}}
+\Needspace{22\baselineskip}
+\begin{longtable}{P{0.08\linewidth}P{0.58\linewidth}P{0.26\linewidth}}
 \toprule
 Regla & Enunciado & Justificación\\
 \midrule
+\endfirsthead
+\toprule
+Regla & Enunciado & Justificación\\
+\midrule
+\endhead
 R1 & IF promedio es bajo AND asistencia es baja THEN riesgo es crítico & Bajo rendimiento y ausencia elevan el riesgo.\\
 R2 & IF promedio es bajo AND entregas son insuficientes THEN riesgo es crítico & Faltan evidencias de trabajo.\\
 R3 & IF exámenes son deficientes AND promedio es bajo THEN riesgo es alto & El desempeño bajo se confirma en evaluaciones recientes.\\

@@ -1,3 +1,6 @@
+% !TEX root = main.tex
+% !TEX program = pdflatex
+% !TEX spellcheck = es_ES
 \documentclass[12pt,letterpaper]{article}
 
 \usepackage[spanish,es-tabla]{babel}
@@ -8,8 +11,16 @@
 \usepackage{amssymb}
 \usepackage{booktabs}
 \usepackage{longtable}
+\usepackage{tabularx}
 \usepackage{array}
 \usepackage{listings}
+\usepackage{needspace}
+\usepackage{titlesec}
+\usepackage{etoolbox}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage[all]{nowidow}
+\usepackage{enumitem}
+\usepackage[section]{placeins}
 \usepackage{hyperref}
 \usepackage{natbib}
 
@@ -17,6 +28,26 @@
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
 \setlength{\parskip}{0.6em}
 \setlength{\parindent}{0pt}
+\raggedbottom
+
+% Control visual: evita titulos huerfanos, formulas sueltas y cortes torpes.
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+\predisplaypenalty=10000
+\postdisplaypenalty=0
+\setlength{\LTpre}{0.25em}
+\setlength{\LTpost}{0.6em}
+\renewcommand{\arraystretch}{1.08}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\titlespacing*{\section}{0pt}{1.2em}{0.55em}
+\titlespacing*{\subsection}{0pt}{0.9em}{0.35em}
+\setlist{topsep=0.25em,itemsep=0.15em,parsep=0pt}
+\pretocmd{\section}{\Needspace{8\baselineskip}}{}{}
+\pretocmd{\subsection}{\Needspace{6\baselineskip}}{}{}
+\pretocmd{\section}{\FloatBarrier}{}{}
+\BeforeBeginEnvironment{longtable}{\Needspace{10\baselineskip}\small}
+\AfterEndEnvironment{longtable}{\normalsize}
 
 \lstset{
   basicstyle=\ttfamily\small,
@@ -39,14 +70,14 @@
   \vspace{1.8cm}
   {\LARGE\bfseries Sistema Difuso Mamdani para la Evaluación de Riesgo Académico en Estudiantes\par}
   \vspace{1.8cm}
-  \begin{tabular}{rl}
+  \begin{tabularx}{0.92\textwidth}{>{\bfseries}r X}
     Materia: & Sistemas Difusos\\
     Profesor: & Prof. Oscar Castillo, Ph.D., D.Sc.\\
     Semestre: & Enero - Junio 2026\\
     Alumno: & Samuel Hiram Castro Martinez\\
     Proyecto: & Sistema Difuso Mamdani para la Evaluación de Riesgo Académico en Estudiantes\\
     Fecha: & 12 de Mayo del 2026
-  \end{tabular}
+  \end{tabularx}
   \vfill
 \end{titlepage}
 

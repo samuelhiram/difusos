@@ -1,0 +1,41 @@
+{
+  "latex-workshop.latex.autoBuild.run": "onSave",
+  "latex-workshop.latex.autoBuild.cleanAndRetry.enabled": true,
+  "latex-workshop.latex.build.enableMagicComments": true,
+  "latex-workshop.latex.recipe.default": "first",
+  "latex-workshop.view.pdf.viewer": "tab",
+  "latex-workshop.synctex.afterBuild.enabled": true,
+  "latex-workshop.message.error.show": true,
+  "latex-workshop.message.warning.show": false,
+  "latex-workshop.latex.tools": [
+    {
+      "name": "repo-latexmk",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "%WS1%\\scripts\\vscode-latexmk.ps1",
+        "%DOC%"
+      ]
+    }
+  ],
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "repo latexmk",
+      "tools": ["repo-latexmk"]
+    }
+  ],
+  "latex-workshop.latex.clean.fileTypes": [
+    "*.aux",
+    "*.bbl",
+    "*.blg",
+    "*.fdb_latexmk",
+    "*.fls",
+    "*.log",
+    "*.out",
+    "*.synctex.gz",
+    "*.toc"
+  ]
+}

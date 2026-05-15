@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 \section{Implementación}
 
 \subsection{Arquitectura del monorepo}
@@ -27,5 +28,8 @@ El paquete \texttt{fuzzy-core} contiene TypeScript puro. Sus módulos principale
 La interfaz muestra entradas numéricas, funciones de pertenencia, grados calculados, reglas activadas, valor $\alpha$ por regla, área recortada, salida agregada, centroide, resultado crisp y etiqueta lingüística final. El grafo visual sigue este orden:
 
 \[
-\text{Entradas} \rightarrow \text{Fuzzificación} \rightarrow \text{Grados} \rightarrow \text{Reglas} \rightarrow \text{Recorte} \rightarrow \text{Agregación} \rightarrow \text{Centroide} \rightarrow \text{Resultado}
+\begin{aligned}
+\text{Entradas} &\rightarrow \text{Fuzzificación} \rightarrow \text{Grados} \rightarrow \text{Reglas}\\
+&\rightarrow \text{Recorte} \rightarrow \text{Agregación} \rightarrow \text{Centroide} \rightarrow \text{Resultado}
+\end{aligned}
 \]

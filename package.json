@@ -7,7 +7,13 @@
     "build": "turbo build --filter=!@academic-risk/report",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
-    "report": "pnpm --filter @academic-risk/report build"
+    "report": "pnpm --filter @academic-risk/report build",
+    "report:check": "powershell -ExecutionPolicy Bypass -File scripts/build-report.ps1",
+    "report:watch": "powershell -ExecutionPolicy Bypass -File scripts/watch-report.ps1",
+    "report:open": "powershell -Command \"Start-Process packages/report/main.pdf\"",
+    "presentation": "pnpm --filter @academic-risk/presentation build",
+    "presentation:watch": "powershell -ExecutionPolicy Bypass -File scripts/watch-presentation.ps1",
+    "presentation:open": "powershell -Command \"Start-Process packages/presentation/dist/sistema-difuso-mamdani.pptx\""
   },
   "devDependencies": {
     "turbo": "latest",

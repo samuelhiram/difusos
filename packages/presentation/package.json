@@ -1,0 +1,18 @@
+{
+  "name": "@academic-risk/presentation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsx src/generate.ts",
+    "watch": "tsx watch src/generate.ts"
+  },
+  "dependencies": {
+    "@academic-risk/fuzzy-core": "workspace:*",
+    "pptxgenjs": "latest"
+  },
+  "devDependencies": {
+    "tsx": "latest",
+    "typescript": "latest"
+  }
+}
