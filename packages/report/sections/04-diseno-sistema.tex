@@ -1,91 +1,78 @@
 % !TEX root = ../main.tex
+\input{data/variables-params}
+\input{data/rules}
+
 \section{Diseño del sistema difuso}
 
-\subsection{Variables de entrada}
+\subsection{Variables lingüísticas}
 
-\begin{samepage}
-\begin{center}
-\small
-\begin{tabularx}{0.92\linewidth}{l l X}
+El sistema modela cinco variables de entrada y una variable de salida, todas definidas sobre el universo $[0,100]$. La tabla~\ref{tab:variables} resume los conjuntos lingüísticos. Los parámetros formales de cada conjunto difuso se documentan en la tabla~\ref{tab:parametros}.
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabularx}{0.96\linewidth}{l l X}
+    \toprule
+    \textbf{Variable} & \textbf{Rango} & \textbf{Conjuntos lingüísticos}\\
+    \midrule
+    Promedio actual & $[0,100]$ & bajo, regular, alto\\
+    Asistencia & $[0,100]$ & baja, media, alta\\
+    Entregas realizadas & $[0,100]$ & insuficientes, parciales, completas\\
+    Participación & $[0,100]$ & baja, media, alta\\
+    Exámenes recientes & $[0,100]$ & deficientes, regulares, buenos\\
+    \midrule
+    Riesgo académico (salida) & $[0,100]$ & bajo, medio, alto, crítico\\
+    \bottomrule
+  \end{tabularx}
+  \caption{Variables lingüísticas del sistema con sus conjuntos asociados.}
+  \label{tab:variables}
+\end{table}
+
+\subsection{Parámetros de las funciones de pertenencia}
+
+La tabla~\ref{tab:parametros} se genera automáticamente desde el motor TypeScript. La notación $T(a,b,c)$ indica función triangular y $Z(a,b,c,d)$ función trapezoidal. Cada conjunto fue calibrado por criterio experto para reflejar la transición gradual entre las categorías académicas tradicionales.
+
+\begin{longtable}{P{0.27\linewidth}P{0.18\linewidth}P{0.16\linewidth}P{0.27\linewidth}}
+\caption{Parámetros formales de los conjuntos difusos del sistema.\label{tab:parametros}}\\
 \toprule
-Variable & Rango & Conjuntos lingüísticos\\
-\midrule
-Promedio actual & $[0,100]$ & bajo, regular, alto\\
-Asistencia & $[0,100]$ & baja, media, alta\\
-Entregas realizadas & $[0,100]$ & insuficientes, parciales, completas\\
-Participación & $[0,100]$ & baja, media, alta\\
-Exámenes recientes & $[0,100]$ & deficientes, regulares, buenos\\
-\bottomrule
-\end{tabularx}
-\end{center}
-\end{samepage}
-
-\subsection{Variable de salida}
-
-\begin{samepage}
-\begin{center}
-\small
-\begin{tabularx}{0.92\linewidth}{l l X}
-\toprule
-Variable & Rango & Conjuntos lingüísticos\\
-\midrule
-Riesgo académico & $[0,100]$ & bajo, medio, alto, crítico\\
-\bottomrule
-\end{tabularx}
-\end{center}
-\end{samepage}
-
-\subsection{Parámetros de pertenencia}
-
-La notación $T(a,b,c)$ indica función triangular. La notación $Z(a,b,c,d)$ indica función trapezoidal.
-
-\begin{longtable}{llll}
-\toprule
-Variable & Conjunto & Tipo & Parámetros\\
-\midrule
-Promedio & bajo & trapezoidal & $Z(0,0,45,60)$\\
-Promedio & regular & triangular & $T(45,65,80)$\\
-Promedio & alto & trapezoidal & $Z(70,85,100,100)$\\
-Asistencia & baja & trapezoidal & $Z(0,0,55,70)$\\
-Asistencia & media & triangular & $T(60,75,88)$\\
-Asistencia & alta & trapezoidal & $Z(82,92,100,100)$\\
-Entregas & insuficientes & trapezoidal & $Z(0,0,45,60)$\\
-Entregas & parciales & triangular & $T(50,70,85)$\\
-Entregas & completas & trapezoidal & $Z(78,90,100,100)$\\
-Participación & baja & trapezoidal & $Z(0,0,35,50)$\\
-Participación & media & triangular & $T(40,60,78)$\\
-Participación & alta & trapezoidal & $Z(70,85,100,100)$\\
-Exámenes & deficientes & trapezoidal & $Z(0,0,45,60)$\\
-Exámenes & regulares & triangular & $T(50,68,82)$\\
-Exámenes & buenos & trapezoidal & $Z(75,88,100,100)$\\
-Riesgo & bajo & trapezoidal & $Z(0,0,20,35)$\\
-Riesgo & medio & triangular & $T(25,45,65)$\\
-Riesgo & alto & triangular & $T(55,72,88)$\\
-Riesgo & crítico & trapezoidal & $Z(78,90,100,100)$\\
-\bottomrule
-\end{longtable}
-
-\subsection{Base de reglas}
-
-\Needspace{22\baselineskip}
-\begin{longtable}{P{0.08\linewidth}P{0.58\linewidth}P{0.26\linewidth}}
-\toprule
-Regla & Enunciado & Justificación\\
+\textbf{Variable} & \textbf{Conjunto} & \textbf{Tipo} & \textbf{Parámetros}\\
 \midrule
 \endfirsthead
 \toprule
-Regla & Enunciado & Justificación\\
+\textbf{Variable} & \textbf{Conjunto} & \textbf{Tipo} & \textbf{Parámetros}\\
 \midrule
 \endhead
-R1 & IF promedio es bajo AND asistencia es baja THEN riesgo es crítico & Bajo rendimiento y ausencia elevan el riesgo.\\
-R2 & IF promedio es bajo AND entregas son insuficientes THEN riesgo es crítico & Faltan evidencias de trabajo.\\
-R3 & IF exámenes son deficientes AND promedio es bajo THEN riesgo es alto & El desempeño bajo se confirma en evaluaciones recientes.\\
-R4 & IF asistencia es media AND promedio es regular THEN riesgo es medio & Condición intermedia.\\
-R5 & IF entregas son completas AND promedio es alto THEN riesgo es bajo & Cumplimiento y rendimiento reducen riesgo.\\
-R6 & IF participación es alta AND asistencia es alta AND exámenes son buenos THEN riesgo es bajo & Evidencia académica favorable.\\
-R7 & IF promedio es regular AND exámenes son regulares THEN riesgo es medio & Desempeño aceptable pero no sólido.\\
-R8 & IF asistencia es baja AND entregas son parciales THEN riesgo es alto & Ausencia y avance incompleto elevan riesgo.\\
-R9 & IF promedio es alto AND exámenes son buenos THEN riesgo es bajo & Rendimiento sostenido.\\
-R10 & IF promedio es bajo AND participación es baja THEN riesgo es alto & Poca participación limita recuperación.\\
+\VariableParamsRows
 \bottomrule
 \end{longtable}
+
+\subsection{Base de reglas IF-THEN}
+
+La tabla~\ref{tab:reglas} contiene las diez reglas que conforman la base de inferencia. Cada regla incluye su justificación lingüística para hacer evidente la racionalidad detrás del diseño.
+
+\begin{longtable}{P{0.08\linewidth}P{0.50\linewidth}P{0.12\linewidth}P{0.22\linewidth}}
+\caption{Base de reglas IF-THEN del sistema. Las reglas con consecuente crítico y alto modelan los escenarios de mayor alerta académica.\label{tab:reglas}}\\
+\toprule
+\textbf{Regla} & \textbf{Enunciado} & \textbf{Consec.} & \textbf{Justificación}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Regla} & \textbf{Enunciado} & \textbf{Consec.} & \textbf{Justificación}\\
+\midrule
+\endhead
+\RulesRows
+\bottomrule
+\end{longtable}
+
+\subsection{Operadores}
+
+El sistema utiliza:
+
+\begin{itemize}
+  \item AND: t-norma mínimo, $T_{\min}(a,b)=\min(a,b)$.
+  \item Implicación: mínimo de Mamdani, $\min(\alpha_r, \mu_{B_r}(y))$.
+  \item Agregación: máximo punto a punto sobre el universo de salida.
+  \item Defuzzificación: centroide discreto con paso unitario.
+\end{itemize}
+
+La elección de mínimo y máximo se justifica por su transparencia: ambos son funciones monótonas, asociativas, conmutativas y con interpretación lingüística inmediata. Esto hace innecesaria cualquier calibración estadística \citep{ross2010fuzzy,klir1995fuzzy}.

@@ -3,25 +3,22 @@
 
 \subsection{Lógica difusa clásica}
 
-La lógica difusa extiende la pertenencia clásica. En un conjunto ordinario, un elemento pertenece o no pertenece. En un conjunto difuso, la pertenencia toma valores en el intervalo $[0,1]$. Esta representación permite modelar conceptos vagos como ``bajo'', ``regular'', ``alto'' o ``crítico'' \citep{zadeh1965fuzzy,klir1995fuzzy,zimmermann2001fuzzy}.
+La lógica difusa extiende la noción binaria de pertenencia. En un conjunto ordinario, un elemento pertenece o no pertenece. En un conjunto difuso, la pertenencia toma valores en el intervalo $[0,1]$, lo que permite modelar conceptos vagos como ``bajo'', ``regular'', ``alto'' o ``crítico'' \citep{zadeh1965fuzzy,klir1995fuzzy,zimmermann2001fuzzy}. La teoría se ha consolidado como herramienta de razonamiento aproximado y control \citep{ross2010fuzzy,pedrycz1998introduction}.
 
-\subsection{Conjuntos difusos}
+\subsection{Conjuntos difusos y funciones de pertenencia}
 
-Sea $X$ un universo de discurso. Un conjunto difuso $A$ sobre $X$ se define mediante una función de pertenencia:
+Sea $X$ un universo de discurso. Un conjunto difuso $A$ sobre $X$ se define mediante una función de pertenencia
 
-\[
-\mu_A:X\rightarrow[0,1]
-\]
+\begin{equation}
+\mu_A:X\rightarrow[0,1].
+\label{eq:membership-base}
+\end{equation}
 
-El valor $\mu_A(x)$ representa el grado en que $x$ pertenece al conjunto $A$.
-
-\subsection{Variables lingüísticas}
-
-Una variable lingüística toma valores expresados en lenguaje natural. Zadeh formalizó este concepto para razonamiento aproximado \citep{zadeh1975linguistic}. En este sistema, ``promedio actual'' es una variable lingüística con términos como bajo, regular y alto.
+El valor $\mu_A(x)$ representa el grado en que $x$ pertenece al conjunto $A$. Esta definición admite cualquier forma analítica para $\mu_A$; las más comunes son las funciones triangulares, trapezoidales, gaussianas y sigmoides. Este proyecto utiliza únicamente formas triangulares y trapezoidales por su transparencia y por permitir interpretación inmediata de los parámetros.
 
 \subsection{Función triangular}
 
-\[
+\begin{equation}
 \mu_A(x)=
 \begin{cases}
 0, & x \leq a \\
@@ -29,11 +26,12 @@ Una variable lingüística toma valores expresados en lenguaje natural. Zadeh fo
 \dfrac{c-x}{c-b}, & b < x < c \\
 0, & x \geq c
 \end{cases}
-\]
+\label{eq:triangular}
+\end{equation}
 
 \subsection{Función trapezoidal}
 
-\[
+\begin{equation}
 \mu_A(x)=
 \begin{cases}
 0, & x \leq a \\
@@ -42,34 +40,155 @@ Una variable lingüística toma valores expresados en lenguaje natural. Zadeh fo
 \dfrac{d-x}{d-c}, & c < x < d \\
 0, & x \geq d
 \end{cases}
-\]
+\label{eq:trapezoidal}
+\end{equation}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[membership,xmin=0,xmax=100,ymin=0,ymax=1.05,width=0.78\linewidth,height=4.5cm,legend pos=outer north east]
+      \addplot[thick,difTeal,smooth] coordinates {(0,0)(20,0)(45,1)(60,0)(100,0)};
+      \addlegendentry{Triangular $T(20,45,60)$};
+      \addplot[thick,difCritical,dashed] coordinates {(0,0)(15,1)(40,1)(70,0)(100,0)};
+      \addlegendentry{Trapezoidal $Z(0,15,40,70)$};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Formas canónicas de las funciones triangular y trapezoidal utilizadas en este trabajo.}
+  \label{fig:formas-canonicas}
+\end{figure}
+
+\subsection{Variables lingüísticas}
+
+Una variable lingüística toma valores expresados en lenguaje natural. \citet{zadeh1975linguistic} formalizó este concepto para razonamiento aproximado. En este sistema, ``promedio actual'' es una variable lingüística con términos \emph{bajo}, \emph{regular} y \emph{alto}. Las figuras~\ref{fig:mf-average} a~\ref{fig:mf-risk} muestran las cinco variables de entrada y la variable de salida con sus tres o cuatro términos.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[membership,legend pos=outer north east]
+      \addplot[difCritical] table[x=x,y=low]{data/membership-average.dat};
+      \addlegendentry{bajo};
+      \addplot[difMedium] table[x=x,y=regular]{data/membership-average.dat};
+      \addlegendentry{regular};
+      \addplot[difTeal] table[x=x,y=high]{data/membership-average.dat};
+      \addlegendentry{alto};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Funciones de pertenencia de la variable \emph{promedio actual}.}
+  \label{fig:mf-average}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[membership,legend pos=outer north east]
+      \addplot[difCritical] table[x=x,y=low]{data/membership-attendance.dat};
+      \addlegendentry{baja};
+      \addplot[difMedium] table[x=x,y=medium]{data/membership-attendance.dat};
+      \addlegendentry{media};
+      \addplot[difTeal] table[x=x,y=high]{data/membership-attendance.dat};
+      \addlegendentry{alta};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Funciones de pertenencia de la variable \emph{asistencia}.}
+  \label{fig:mf-attendance}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[membership,legend pos=outer north east]
+      \addplot[difCritical] table[x=x,y=insufficient]{data/membership-assignments.dat};
+      \addlegendentry{insuficientes};
+      \addplot[difMedium] table[x=x,y=partial]{data/membership-assignments.dat};
+      \addlegendentry{parciales};
+      \addplot[difTeal] table[x=x,y=complete]{data/membership-assignments.dat};
+      \addlegendentry{completas};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Funciones de pertenencia de la variable \emph{entregas realizadas}.}
+  \label{fig:mf-assignments}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[membership,legend pos=outer north east]
+      \addplot[difCritical] table[x=x,y=low]{data/membership-participation.dat};
+      \addlegendentry{baja};
+      \addplot[difMedium] table[x=x,y=medium]{data/membership-participation.dat};
+      \addlegendentry{media};
+      \addplot[difTeal] table[x=x,y=high]{data/membership-participation.dat};
+      \addlegendentry{alta};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Funciones de pertenencia de la variable \emph{participación}.}
+  \label{fig:mf-participation}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[membership,legend pos=outer north east]
+      \addplot[difCritical] table[x=x,y=deficient]{data/membership-exams.dat};
+      \addlegendentry{deficientes};
+      \addplot[difMedium] table[x=x,y=regular]{data/membership-exams.dat};
+      \addlegendentry{regulares};
+      \addplot[difTeal] table[x=x,y=good]{data/membership-exams.dat};
+      \addlegendentry{buenos};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Funciones de pertenencia de la variable \emph{exámenes recientes}.}
+  \label{fig:mf-exams}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[membership,legend pos=outer north east]
+      \addplot[difLow] table[x=x,y=low]{data/membership-risk.dat};
+      \addlegendentry{bajo};
+      \addplot[difMedium] table[x=x,y=medium]{data/membership-risk.dat};
+      \addlegendentry{medio};
+      \addplot[difHigh] table[x=x,y=high]{data/membership-risk.dat};
+      \addlegendentry{alto};
+      \addplot[difCritical] table[x=x,y=critical]{data/membership-risk.dat};
+      \addlegendentry{crítico};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Funciones de pertenencia del universo de salida \emph{riesgo académico}, con los cuatro conjuntos lingüísticos sobre los que se aplica la agregación máximo y la defuzzificación por centroide.}
+  \label{fig:mf-risk}
+\end{figure}
 
 \subsection{Inferencia Mamdani}
 
-El enfoque Mamdani usa reglas lingüísticas y funciones de pertenencia para construir una salida difusa \citep{mamdani1975experiment}. Para una regla $r$ con antecedentes $A_1,\ldots,A_n$, el operador AND se calcula por mínimo:
+El enfoque Mamdani usa reglas lingüísticas y funciones de pertenencia para construir una salida difusa \citep{mamdani1975experiment,mamdani1974application}. Para una regla $r$ con antecedentes $A_1,\ldots,A_n$, el operador AND se calcula por mínimo:
 
-\[
-\alpha_r = \min(\mu_{A_1}(x_1), \mu_{A_2}(x_2), \ldots, \mu_{A_n}(x_n))
-\]
+\begin{equation}
+\alpha_r = \min(\mu_{A_1}(x_1), \mu_{A_2}(x_2), \ldots, \mu_{A_n}(x_n)).
+\label{eq:alpha}
+\end{equation}
 
 La implicación Mamdani recorta el conjunto de salida:
 
-\[
-\mu_{B_r'}(y)=\min(\alpha_r, \mu_{B_r}(y))
-\]
+\begin{equation}
+\mu_{B'_r}(y)=\min(\alpha_r, \mu_{B_r}(y)).
+\label{eq:clip}
+\end{equation}
 
 La agregación combina todas las salidas recortadas mediante máximo:
 
-\[
-\mu_B(y)=\max_{r=1}^{m} \mu_{B_r'}(y)
-\]
+\begin{equation}
+\mu_B(y)=\max_{r=1}^{m} \mu_{B'_r}(y).
+\label{eq:aggregation}
+\end{equation}
 
 \subsection{Defuzzificación por centroide}
 
-El valor crisp se obtiene con el centroide:
+El valor crisp se obtiene como centro de masa de la función agregada:
 
-\[
-y^*=\frac{\int y\mu_B(y)\,dy}{\int \mu_B(y)\,dy}
-\]
+\begin{equation}
+y^*=\frac{\int_X y\,\mu_B(y)\,dy}{\int_X \mu_B(y)\,dy}.
+\label{eq:centroid}
+\end{equation}
 
-Este método es común en aplicaciones de control e ingeniería difusa \citep{ross2010fuzzy}.
+En este sistema la integral se aproxima por suma discreta con paso $\Delta y = 1$ sobre el universo $[0,100]$. Este método de defuzzificación es estándar en aplicaciones de control e ingeniería difusa \citep{ross2010fuzzy,sugeno1985industrial}.

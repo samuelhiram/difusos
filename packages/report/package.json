@@ -2,8 +2,17 @@
   "name": "@academic-risk/report",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "latexmk -pdf -interaction=nonstopmode -file-line-error main.tex",
-    "clean": "latexmk -C"
+    "data": "tsx scripts/emit-data.ts",
+    "build": "tsx scripts/emit-data.ts && tectonic -X compile --keep-logs --reruns 3 main.tex",
+    "clean": "powershell -NoProfile -Command \"Get-ChildItem -Filter 'main.*' | Where-Object { $_.Extension -ne '.tex' } | Remove-Item -Force -ErrorAction SilentlyContinue\""
+  },
+  "dependencies": {
+    "@academic-risk/fuzzy-core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "latest",
+    "typescript": "latest"
   }
 }

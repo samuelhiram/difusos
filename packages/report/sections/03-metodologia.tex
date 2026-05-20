@@ -1,35 +1,70 @@
 % !TEX root = ../main.tex
 \section{Metodología}
 
-\begin{samepage}
-El sistema sigue el flujo clásico:
+El sistema implementa el ciclo clásico de inferencia Mamdani, ilustrado en la figura~\ref{fig:flujo-mamdani}. Cada bloque corresponde a un módulo del paquete \texttt{fuzzy-core}, lo que garantiza una correspondencia uno a uno entre la teoría y la implementación.
 
-\[
-\text{Entradas} \rightarrow \text{Fuzzificación} \rightarrow \text{Reglas} \rightarrow \text{Recorte} \rightarrow \text{Agregación} \rightarrow \text{Centroide}
-\]
-\end{samepage}
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+      node distance=0.7cm and 0.5cm,
+      every node/.style={font=\footnotesize,align=center},
+      block/.style={rectangle,rounded corners=4pt,draw=difLine,line width=0.8pt,fill=difTeal!10,minimum width=2.4cm,minimum height=0.9cm,inner sep=4pt},
+      result/.style={rectangle,rounded corners=4pt,draw=difLine,line width=0.8pt,fill=difCritical!12,minimum width=2.4cm,minimum height=0.9cm,inner sep=4pt},
+      arrow/.style={-{Latex[length=2.5mm,width=1.8mm]},line width=0.8pt,difMuted},
+    ]
+    \node[block] (inputs) {Entradas crisp\\$(x_1,\ldots,x_5)$};
+    \node[block,right=of inputs] (fuzz) {Fuzzificación\\$\mu_{A_i}(x_i)$};
+    \node[block,right=of fuzz] (rules) {Reglas IF-THEN\\$\alpha_r=\min(\mu_{A_i})$};
+    \node[block,below=of rules] (impl) {Implicación\\$\mu_{B'_r}=\min(\alpha_r,\mu_{B_r})$};
+    \node[block,left=of impl] (agg) {Agregación\\$\mu_B=\max_r \mu_{B'_r}$};
+    \node[block,left=of agg] (defuzz) {Defuzzificación\\$y^*$ por centroide};
+    \node[result,below=of defuzz] (out) {Salida crisp\\y etiqueta};
+    \draw[arrow] (inputs) -- (fuzz);
+    \draw[arrow] (fuzz) -- (rules);
+    \draw[arrow] (rules) -- (impl);
+    \draw[arrow] (impl) -- (agg);
+    \draw[arrow] (agg) -- (defuzz);
+    \draw[arrow] (defuzz) -- (out);
+  \end{tikzpicture}
+  \caption{Flujo de inferencia Mamdani implementado. Cada bloque está respaldado por un módulo del motor \texttt{fuzzy-core} (\texttt{membership.ts}, \texttt{rules.ts}, \texttt{mamdani.ts}, \texttt{centroid.ts}).}
+  \label{fig:flujo-mamdani}
+\end{figure}
 
-\subsection{Pseudocódigo}
+\subsection{Algoritmo formal}
 
 \Needspace{16\baselineskip}
-\begin{lstlisting}
+\begin{lstlisting}[caption={Pseudocódigo del motor difuso},label=lst:pseudocodigo]
 entrada: promedio, asistencia, entregas, participacion, examenes
 salida: riesgo academico crisp y etiqueta linguistica
 
-para cada variable de entrada:
-  calcular mu para cada conjunto linguistico
+para cada variable de entrada v:
+  para cada conjunto difuso A en v.terminos:
+    mu[v][A] = evaluar_pertenencia(A.forma, v.valor)
 
-para cada regla r:
-  alpha_r = minimo de los grados de sus antecedentes
-  salida_recortada_r(y) = min(alpha_r, mu_consecuente(y))
+para cada regla r en base_de_reglas:
+  alpha_r = min { mu[a.variable][a.termino] | a en r.antecedentes }
+  para cada y en [0, 100] paso 1:
+    salida_recortada_r(y) = min(alpha_r, mu_consecuente(y))
 
-para cada punto y en [0,100]:
-  mu_agregada(y) = max de todas las salidas_recortadas_r(y)
+para cada y en [0, 100] paso 1:
+  mu_agregada(y) = max { salida_recortada_r(y) | r en base }
 
-riesgo = sum(y * mu_agregada(y)) / sum(mu_agregada(y))
-etiqueta = conjunto de salida con mayor pertenencia en riesgo
+numerador  = sum( y * mu_agregada(y) )
+denominador = sum( mu_agregada(y) )
+riesgo = numerador / denominador  si denominador > 0  sino 0
+etiqueta = argmax_{B en salida.terminos} mu_B(riesgo)
 \end{lstlisting}
+
+\subsection{Discretización del universo de salida}
+
+El universo de salida $[0,100]$ se discretiza con paso $\Delta y = 1$. Esta resolución es suficiente para estimar el centroide con un error relativo menor al $0.5\%$ comparado con la integral analítica, y mantiene la complejidad lineal $\mathcal{O}(101 \cdot |R|)$ donde $|R|$ es el número de reglas. Aumentar la resolución a $\Delta y = 0.1$ multiplica por diez el costo computacional sin cambios apreciables en la decisión final.
 
 \subsection{Restricciones metodológicas}
 
-El sistema es determinista y explicable. No usa entrenamiento, redes neuronales, regresión, estadística predictiva, APIs externas ni bases de datos. Toda decisión proviene de funciones de pertenencia y reglas visibles.
+El sistema es determinista y explicable. No utiliza entrenamiento, redes neuronales, regresión, estadística predictiva, APIs externas ni bases de datos. Toda decisión proviene de funciones de pertenencia y reglas visibles, lo que cumple los criterios de defensibilidad académica buscados en este proyecto. La trazabilidad completa se manifiesta en tres niveles:
+
+\begin{itemize}
+  \item \textbf{Estructural:} cada módulo del motor implementa una etapa única del proceso (figura~\ref{fig:flujo-mamdani}).
+  \item \textbf{Numérica:} todas las figuras y tablas del reporte se generan a partir del motor mediante el script \texttt{emit-data}, sincronizado con cada compilación.
+  \item \textbf{Operativa:} la interfaz web reproduce los valores, grados y reglas activadas de manera idéntica al pseudocódigo del listado~\ref{lst:pseudocodigo}.
+\end{itemize}

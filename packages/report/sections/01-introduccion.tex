@@ -1,27 +1,38 @@
 % !TEX root = ../main.tex
-\section{Resumen}
-
-Este proyecto presenta un sistema difuso clásico tipo Mamdani para estimar el riesgo académico de un estudiante en una escala de 0 a 100. El sistema usa cinco variables de entrada: promedio actual, asistencia, entregas realizadas, participación y resultados recientes en exámenes. La salida es el riesgo académico, expresado como valor crisp y como etiqueta lingüística. El método no usa aprendizaje automático, redes neuronales, regresión ni modelos probabilísticos. La estimación se obtiene mediante conjuntos difusos, funciones de pertenencia, reglas lingüísticas IF-THEN, inferencia Mamdani, agregación por máximo y defuzzificación por centroide.
-
 \section{Introducción}
 
-La evaluación académica contiene incertidumbre. Un estudiante puede tener promedio regular, asistencia media y entregas parciales; clasificarlo con reglas binarias pierde información. La lógica difusa permite representar grados de pertenencia y razonamiento aproximado, idea introducida formalmente por \citet{zadeh1965fuzzy}. En este proyecto se aplica el enfoque Mamdani, basado en reglas lingüísticas y operadores min-max, siguiendo el planteamiento clásico de \citet{mamdani1974application} y \citet{mamdani1975experiment}.
+La evaluación académica contiene incertidumbre. Un estudiante con promedio regular, asistencia media y entregas parciales puede ubicarse en la frontera entre múltiples categorías de riesgo, y clasificarlo con reglas binarias pierde información. La lógica difusa, introducida formalmente por \citet{zadeh1965fuzzy} y extendida con el concepto de variable lingüística por \citet{zadeh1975linguistic}, permite representar grados parciales de pertenencia y razonamiento aproximado.
+
+En este proyecto se aplica el enfoque Mamdani, basado en reglas lingüísticas IF-THEN y operadores mínimo y máximo, siguiendo el planteamiento clásico de \citet{mamdani1974application} y \citet{mamdani1975experiment}. El sistema se diferencia de cualquier técnica de aprendizaje supervisado o no supervisado: no se entrenan parámetros, no se ajustan pesos contra datos históricos y no se aplican modelos probabilísticos. Toda la inferencia se construye sobre conjuntos difusos definidos por criterio experto y reglas verbalizables, lo que la hace defendible en contextos académicos donde la trazabilidad importa tanto como la precisión.
 
 \section{Planteamiento del problema}
 
-La detección de riesgo académico suele depender de umbrales rígidos. Por ejemplo, un promedio de 59 puede considerarse crítico y uno de 60 regular, aunque ambos casos sean muy cercanos. Este salto discreto no modela bien la transición gradual entre bajo, regular y alto desempeño. Se requiere un sistema transparente que permita explicar cómo cada variable académica aporta al riesgo final.
+La detección de riesgo académico suele depender de umbrales rígidos. Un promedio de 59 puede considerarse crítico y uno de 60 regular, aunque ambos casos sean prácticamente equivalentes. Este salto discreto no modela la transición gradual entre bajo, regular y alto desempeño. Adicionalmente, las decisiones basadas en umbrales aislados no permiten combinar evidencias heterogéneas (promedio, asistencia, entregas, participación, exámenes) de manera coherente sin recurrir a pesos arbitrarios.
+
+Se requiere un sistema transparente que:
+
+\begin{itemize}
+  \item Modele la transición entre categorías como una variable continua y graduada.
+  \item Combine múltiples evidencias académicas sin pesos numéricos ajustados a datos.
+  \item Permita auditar cada decisión paso a paso: grados de pertenencia, reglas activadas, áreas recortadas, agregación y centroide.
+  \item No dependa de datos históricos masivos ni de entrenamiento estadístico.
+\end{itemize}
 
 \section{Objetivo general}
 
-Diseñar, implementar y documentar un sistema difuso Mamdani que estime el riesgo académico de estudiantes mediante lógica difusa clásica y trazabilidad completa de reglas.
+Diseñar, implementar y documentar un sistema difuso Mamdani que estime el riesgo académico de estudiantes en una escala continua $[0,100]$, mediante lógica difusa clásica y con trazabilidad completa de reglas, grados y operaciones.
 
 \section{Objetivos específicos}
 
 \begin{itemize}
-  \item Definir variables lingüísticas de entrada y salida.
-  \item Modelar funciones triangulares y trapezoidales.
-  \item Construir una base de reglas IF-THEN coherente.
-  \item Implementar fuzzificación, inferencia, agregación y centroide.
-  \item Crear una interfaz visual que muestre el proceso completo.
-  \item Elaborar documentación académica en \LaTeX{} con referencias verificables.
+  \item Definir variables lingüísticas de entrada y salida con sus conjuntos asociados.
+  \item Modelar funciones de pertenencia triangulares y trapezoidales calibradas por criterio experto.
+  \item Construir una base de reglas IF-THEN coherente y justificada.
+  \item Implementar fuzzificación, inferencia min-max, agregación máximo y defuzzificación centroide en TypeScript puro.
+  \item Crear una interfaz visual que muestre el proceso completo y permita descargar los entregables académicos.
+  \item Elaborar documentación académica en \LaTeX{} con figuras vectoriales, apéndices y referencias verificables.
 \end{itemize}
+
+\section{Estructura del documento}
+
+El reporte se organiza en siete secciones principales y tres apéndices. La sección~2 establece el marco teórico de la lógica difusa y muestra las funciones de pertenencia del sistema. La sección~3 describe la metodología y el pseudocódigo del motor. La sección~4 detalla el diseño con variables, parámetros formales y base de reglas. La sección~5 documenta la implementación. La sección~6 presenta el caso de prueba de referencia con figuras de agregación y centroide. La sección~7 extiende el análisis a tres casos contrastantes (sensibilidad). La sección~8 concluye con limitaciones y trabajo futuro. Los apéndices contienen el código fuente del motor (\ref{ap:codigo}), la activación completa de reglas para los cuatro casos (\ref{ap:activacion-completa}) y los parámetros formales junto con una definición ejecutable en pseudo-Python (\ref{ap:parametros}).

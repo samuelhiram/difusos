@@ -1,77 +1,110 @@
 % !TEX root = ../main.tex
+\input{data/case-estudiante-tipico-riesgo-alto-inputs}
+\input{data/case-estudiante-tipico-riesgo-alto-fuzzification}
+\input{data/case-estudiante-tipico-riesgo-alto-rule-activations}
+
 \section{Caso de prueba}
 
-Se evalúa el siguiente estudiante:
+Se evalúa el caso de referencia documentado en el repositorio bajo el identificador \texttt{\CaseLabelestudiantetipicoriesgoalto}. Las entradas se presentan en la tabla~\ref{tab:caso-inputs}. Estos valores fueron seleccionados deliberadamente para representar un escenario intermedio difícil de clasificar mediante reglas rígidas.
 
-\begin{longtable}{lr}
-\toprule
-Entrada & Valor\\
-\midrule
-Promedio actual & 58\\
-Asistencia & 64\\
-Entregas realizadas & 55\\
-Participación & 48\\
-Exámenes recientes & 52\\
-\bottomrule
-\end{longtable}
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{l r}
+    \toprule
+    \textbf{Entrada} & \textbf{Valor}\\
+    \midrule
+    \CaseInputsestudiantetipicoriesgoalto
+    \bottomrule
+  \end{tabular}
+  \caption{Valores crisp del caso de referencia.}
+  \label{tab:caso-inputs}
+\end{table}
 
 \subsection{Fuzzificación}
 
-Con los parámetros definidos, se obtienen grados aproximados:
+Aplicando las funciones de pertenencia documentadas en la tabla~\ref{tab:parametros} a los valores anteriores se obtienen los grados de la tabla~\ref{tab:caso-fuzzificacion}. Cada entrada activa entre uno y tres conjuntos lingüísticos, lo que ilustra la coactivación característica del razonamiento difuso.
 
-\begin{longtable}{lll}
-\toprule
-Variable & Conjunto & Grado\\
-\midrule
-Promedio & bajo & $0.133$\\
-Promedio & regular & $0.650$\\
-Asistencia & baja & $0.400$\\
-Asistencia & media & $0.267$\\
-Entregas & insuficientes & $0.333$\\
-Entregas & parciales & $0.250$\\
-Participación & baja & $0.133$\\
-Participación & media & $0.400$\\
-Exámenes & deficientes & $0.533$\\
-Exámenes & regulares & $0.111$\\
-\bottomrule
-\end{longtable}
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{l l r}
+    \toprule
+    \textbf{Variable} & \textbf{Conjunto} & \textbf{Grado}\\
+    \midrule
+    \CaseFuzzestudiantetipicoriesgoalto
+    \bottomrule
+  \end{tabular}
+  \caption{Fuzzificación del caso de referencia. Solo se listan los conjuntos con grado positivo.}
+  \label{tab:caso-fuzzificacion}
+\end{table}
 
 \subsection{Activación de reglas}
 
-Ejemplos de activación:
+Aplicando la ecuación~\eqref{eq:alpha} a cada regla se obtienen los grados de activación de la tabla~\ref{tab:caso-activacion}. Se reportan únicamente las reglas con $\alpha_r > 0$ y se ordenan por orden descendente. El área recortada se calcula como la suma discreta $\sum_y \min(\alpha_r,\mu_{B_r}(y))\Delta y$ y representa la masa que aporta cada regla al numerador del centroide.
 
-\[
-\alpha_{R1}=\min(0.133,0.400)=0.133
-\]
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{l r l r}
+    \toprule
+    \textbf{Regla} & \textbf{$\alpha_r$} & \textbf{Consecuente} & \textbf{Área recortada}\\
+    \midrule
+    \CaseRulesestudiantetipicoriesgoalto
+    \bottomrule
+  \end{tabular}
+  \caption{Reglas activadas para el caso de referencia. Las reglas con mayor $\alpha$ dominan la forma de la salida agregada.}
+  \label{tab:caso-activacion}
+\end{table}
 
-\[
-\alpha_{R2}=\min(0.133,0.333)=0.133
-\]
+A modo ilustrativo, las dos reglas dominantes se construyen así:
 
-\[
-\alpha_{R4}=\min(0.267,0.650)=0.267
-\]
+\begin{align*}
+\alpha_{R8} &= \min\left(\mu_{\text{asistencia baja}}(64),\;\mu_{\text{entregas parciales}}(55)\right),\\
+\alpha_{R7} &= \min\left(\mu_{\text{promedio regular}}(58),\;\mu_{\text{exámenes regulares}}(52)\right).
+\end{align*}
 
-\[
-\alpha_{R7}=\min(0.650,0.111)=0.111
-\]
+\subsection{Agregación y defuzzificación}
 
-Las reglas producen salidas recortadas en los conjuntos crítico, alto y medio. La agregación final se calcula por máximo punto a punto.
+La figura~\ref{fig:caso-aggregation} muestra la curva $\mu_B(y)$ resultante de la agregación máximo y la línea vertical que marca el centroide.
 
-\subsection{Resultado}
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[aggregation,legend pos=outer north east]
+      \addplot[difLow,dashed] table[x=x,y=low]{data/case-estudiante-tipico-riesgo-alto-aggregation.dat};
+      \addlegendentry{$B'_{\text{bajo}}$};
+      \addplot[difMedium,dashed] table[x=x,y=medium]{data/case-estudiante-tipico-riesgo-alto-aggregation.dat};
+      \addlegendentry{$B'_{\text{medio}}$};
+      \addplot[difHigh,dashed] table[x=x,y=high]{data/case-estudiante-tipico-riesgo-alto-aggregation.dat};
+      \addlegendentry{$B'_{\text{alto}}$};
+      \addplot[difCritical,dashed] table[x=x,y=critical]{data/case-estudiante-tipico-riesgo-alto-aggregation.dat};
+      \addlegendentry{$B'_{\text{crítico}}$};
+      \addplot[difTeal,line width=1.6pt,fill=difTeal,fill opacity=0.18] table[x=x,y=agregada]{data/case-estudiante-tipico-riesgo-alto-aggregation.dat} \closedcycle;
+      \addlegendentry{$\mu_B(y)$ agregada};
+      \draw[difInk,line width=1pt,dash dot] (axis cs:\CaseCentroidestudiantetipicoriesgoalto,0) -- (axis cs:\CaseCentroidestudiantetipicoriesgoalto,1.02);
+      \node[anchor=south,font=\footnotesize,difInk] at (axis cs:\CaseCentroidestudiantetipicoriesgoalto,1.02) {$y^*=\CaseCentroidestudiantetipicoriesgoalto$};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Curva agregada del caso de referencia. Las líneas discontinuas son las salidas recortadas por regla; el área rellena es la agregación máximo; la línea vertical marca el centroide.}
+  \label{fig:caso-aggregation}
+\end{figure}
 
-Con discretización de paso 1 en el universo $[0,100]$, el motor calcula:
+Aplicando la ecuación~\eqref{eq:centroid} con discretización unitaria sobre $[0,100]$ el motor calcula:
 
-\[
-y^*\approx 60.37
-\]
+\begin{equation}
+y^*=\frac{\CaseNumeratorestudiantetipicoriesgoalto}{\CaseDenominatorestudiantetipicoriesgoalto}=\CaseCentroidestudiantetipicoriesgoalto.
+\label{eq:caso-centroide}
+\end{equation}
 
-El valor pertenece principalmente al conjunto de riesgo alto. Por tanto, el resultado final es:
+\subsection{Resultado y etiqueta lingüística}
 
-\[
-\text{Riesgo académico} = 60.37,\quad \text{etiqueta}=\text{alto}
-\]
+Evaluando los conjuntos de salida sobre $y^*=\CaseCentroidestudiantetipicoriesgoalto$ se identifica al conjunto \emph{\CaseDominantTermestudiantetipicoriesgoalto} como el de mayor grado de pertenencia ($\mu=\CaseDominantMuestudiantetipicoriesgoalto$). Por lo tanto, el resultado final del sistema para este caso es:
 
-\section{Resultados}
+\begin{equation*}
+\text{Riesgo académico} = \CaseCentroidestudiantetipicoriesgoalto,\quad \text{etiqueta} = \text{\CaseLabelIdestudiantetipicoriesgoalto}.
+\end{equation*}
 
-El sistema permite observar cada etapa del razonamiento. Las reglas no se ocultan y el valor final puede rastrearse desde los grados de pertenencia hasta la salida agregada. Esto cumple el objetivo de construir un modelo transparente, determinista y defendible académicamente.
+\section{Discusión de resultados}
+
+Cada etapa del razonamiento queda visible. Las cinco entradas activan ocho conjuntos distintos, lo que se transforma en \CaseActiveRulesCountestudiantetipicoriesgoalto{} reglas con $\alpha > 0$. Las dos reglas dominantes provienen de evidencias diferentes (asistencia con entregas parciales, y promedio regular con exámenes regulares), lo que ilustra cómo el sistema combina información heterogénea sin requerir pesos predefinidos. El resultado $y^*=\CaseCentroidestudiantetipicoriesgoalto$ se ubica en el límite entre las clases \emph{medio} y \emph{alto}, dificultad que un sistema basado en umbrales rígidos resolvería arbitrariamente, mientras que el modelo difuso lo declara como riesgo \emph{\CaseLabelIdestudiantetipicoriesgoalto{}} con grado parcial. Esta capacidad de discriminación gradual es precisamente el aporte central del enfoque Mamdani \citep{mamdani1975experiment,sugeno1985industrial}.

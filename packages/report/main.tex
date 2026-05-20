@@ -6,14 +6,15 @@
 \usepackage[spanish,es-tabla]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{geometry}
 \usepackage{amsmath}
-\usepackage{amssymb}
+\usepackage{newtxtext,newtxmath}
+\usepackage{geometry}
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{tabularx}
 \usepackage{array}
 \usepackage{listings}
+\usepackage{xcolor}
 \usepackage{needspace}
 \usepackage{titlesec}
 \usepackage{etoolbox}
@@ -21,14 +22,36 @@
 \usepackage[all]{nowidow}
 \usepackage{enumitem}
 \usepackage[section]{placeins}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\usepackage{fancyhdr}
+\usepackage[font=small,labelfont=bf]{caption}
 \usepackage{hyperref}
 \usepackage{natbib}
+\usepackage{csquotes}
 
 \geometry{margin=2.5cm}
-\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue,pdfborder={0 0 0}}
 \setlength{\parskip}{0.6em}
 \setlength{\parindent}{0pt}
 \raggedbottom
+
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds}
+
+\definecolor{difLow}{HTML}{15803D}
+\definecolor{difMedium}{HTML}{B45309}
+\definecolor{difHigh}{HTML}{C2410C}
+\definecolor{difCritical}{HTML}{B91C1C}
+\definecolor{difTeal}{HTML}{0F766E}
+\definecolor{difInk}{HTML}{172033}
+\definecolor{difLine}{HTML}{D6DEE8}
+\definecolor{difMuted}{HTML}{5B667A}
 
 % Control visual: evita titulos huerfanos, formulas sueltas y cortes torpes.
 \clubpenalty=10000
@@ -40,6 +63,7 @@
 \setlength{\LTpost}{0.6em}
 \renewcommand{\arraystretch}{1.08}
 \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \titlespacing*{\section}{0pt}{1.2em}{0.55em}
 \titlespacing*{\subsection}{0pt}{0.9em}{0.35em}
 \setlist{topsep=0.25em,itemsep=0.15em,parsep=0pt}
@@ -53,12 +77,67 @@
   basicstyle=\ttfamily\small,
   breaklines=true,
   frame=single,
-  columns=fullflexible
+  framesep=4pt,
+  rulecolor=\color{difLine},
+  backgroundcolor=\color{difLine!10},
+  columns=fullflexible,
+  keywordstyle=\color{difTeal}\bfseries,
+  commentstyle=\color{difMuted}\itshape,
+  stringstyle=\color{difHigh},
+  showstringspaces=false,
 }
+
+\pgfplotsset{
+  membership/.style={
+    width=0.92\linewidth,
+    height=5.4cm,
+    xmin=0,xmax=100,
+    ymin=0,ymax=1.05,
+    grid=both,
+    grid style={dotted,difLine!70},
+    axis line style={difMuted},
+    xlabel={Universo de discurso},
+    ylabel={$\mu_A(x)$},
+    tick label style={font=\footnotesize,difInk},
+    label style={font=\footnotesize,difInk},
+    legend style={font=\footnotesize,draw=difLine,fill=white,fill opacity=0.9,text opacity=1},
+    legend cell align={left},
+    every axis plot/.append style={line width=1.1pt},
+  },
+  aggregation/.style={
+    width=0.95\linewidth,
+    height=6.4cm,
+    xmin=0,xmax=100,
+    ymin=0,ymax=1.05,
+    grid=both,
+    grid style={dotted,difLine!70},
+    axis line style={difMuted},
+    xlabel={Universo de salida $y$},
+    ylabel={$\mu(y)$},
+    tick label style={font=\footnotesize,difInk},
+    label style={font=\footnotesize,difInk},
+    legend style={font=\footnotesize,draw=difLine,fill=white,fill opacity=0.9,text opacity=1},
+    legend cell align={left},
+    every axis plot/.append style={line width=1pt},
+  },
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\color{difMuted}Sistema Difuso Mamdani}
+\fancyhead[R]{\footnotesize\color{difMuted}\leftmark}
+\fancyfoot[C]{\footnotesize\color{difMuted}\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
 
 \title{Sistema Difuso Mamdani para la Evaluación de Riesgo Académico en Estudiantes}
 \author{Samuel Hiram Castro Martinez}
 \date{12 de Mayo del 2026}
+
+\input{data/case-estudiante-tipico-riesgo-alto-summary}
+\input{data/case-estudiante-recuperando-summary}
+\input{data/case-estudiante-critico-summary}
+\input{data/case-estudiante-solido-summary}
 
 \begin{document}
 
@@ -67,30 +146,47 @@
   {\Large Instituto Tecnológico de Tijuana\par}
   \vspace{0.4cm}
   {\large Maestría En Ciencias Computacionales\par}
-  \vspace{1.8cm}
+  \vspace{1.6cm}
+  {\color{difTeal}\rule{0.7\linewidth}{1pt}\par}
+  \vspace{0.8cm}
   {\LARGE\bfseries Sistema Difuso Mamdani para la Evaluación de Riesgo Académico en Estudiantes\par}
-  \vspace{1.8cm}
+  \vspace{0.4cm}
+  {\color{difTeal}\rule{0.7\linewidth}{1pt}\par}
+  \vspace{1.6cm}
   \begin{tabularx}{0.92\textwidth}{>{\bfseries}r X}
     Materia: & Sistemas Difusos\\
     Profesor: & Prof. Oscar Castillo, Ph.D., D.Sc.\\
     Semestre: & Enero - Junio 2026\\
     Alumno: & Samuel Hiram Castro Martinez\\
-    Proyecto: & Sistema Difuso Mamdani para la Evaluación de Riesgo Académico en Estudiantes\\
+    Proyecto: & Sistema Difuso Mamdani para la Evaluación de Riesgo Académico\\
+    Versión: & 2.0 (con figuras vectoriales y trazabilidad completa)\\
     Fecha: & 12 de Mayo del 2026
   \end{tabularx}
   \vfill
+  \small\color{difMuted} Reporte generado con sincronización directa al motor TypeScript determinista del sistema.\par
 \end{titlepage}
 
+\input{sections/00-resumen-ejecutivo}
+
 \tableofcontents
+\listoffigures
+\listoftables
 \newpage
 
+\input{sections/00-glosario}
 \input{sections/01-introduccion}
 \input{sections/02-marco-teorico}
 \input{sections/03-metodologia}
 \input{sections/04-diseno-sistema}
 \input{sections/05-implementacion}
 \input{sections/06-resultados}
+\input{sections/06b-sensibilidad}
 \input{sections/07-conclusiones}
+
+\appendix
+\input{sections/A-apendice-codigo}
+\input{sections/B-apendice-activacion-completa}
+\input{sections/C-apendice-parametros}
 
 \bibliographystyle{apalike}
 \bibliography{references}

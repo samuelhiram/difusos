@@ -1,0 +1,70 @@
+% !TEX root = ../main.tex
+\input{data/case-estudiante-tipico-riesgo-alto-rule-activations}
+\input{data/case-estudiante-recuperando-rule-activations}
+\input{data/case-estudiante-critico-rule-activations}
+\input{data/case-estudiante-solido-rule-activations}
+
+\section{Activación completa de reglas por caso}
+\label{ap:activacion-completa}
+
+Este apéndice documenta, para cada uno de los cuatro casos analizados, la lista exhaustiva de reglas activadas. Las reglas se ordenan por grado $\alpha$ descendente. Las que no aparecen tienen $\alpha = 0$ y por tanto no contribuyen al centroide.
+
+\subsection{Caso de referencia: \emph{\CaseLabelestudiantetipicoriesgoalto}}
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{l r l r}
+    \toprule
+    \textbf{Regla} & \textbf{$\alpha_r$} & \textbf{Consecuente} & \textbf{Área recortada}\\
+    \midrule
+    \CaseRulesestudiantetipicoriesgoalto
+    \bottomrule
+  \end{tabular}
+  \caption{Activación completa para el caso \emph{\CaseLabelestudiantetipicoriesgoalto}.}
+\end{table}
+
+\subsection{Caso \emph{\CaseLabelestudianterecuperando}}
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{l r l r}
+    \toprule
+    \textbf{Regla} & \textbf{$\alpha_r$} & \textbf{Consecuente} & \textbf{Área recortada}\\
+    \midrule
+    \CaseRulesestudianterecuperando
+    \bottomrule
+  \end{tabular}
+  \caption{Activación completa para el caso \emph{\CaseLabelestudianterecuperando}.}
+\end{table}
+
+\subsection{Caso \emph{\CaseLabelestudiantecritico}}
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{l r l r}
+    \toprule
+    \textbf{Regla} & \textbf{$\alpha_r$} & \textbf{Consecuente} & \textbf{Área recortada}\\
+    \midrule
+    \CaseRulesestudiantecritico
+    \bottomrule
+  \end{tabular}
+  \caption{Activación completa para el caso \emph{\CaseLabelestudiantecritico}.}
+\end{table}
+
+\subsection{Caso \emph{\CaseLabelestudiantesolido}}
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{l r l r}
+    \toprule
+    \textbf{Regla} & \textbf{$\alpha_r$} & \textbf{Consecuente} & \textbf{Área recortada}\\
+    \midrule
+    \CaseRulesestudiantesolido
+    \bottomrule
+  \end{tabular}
+  \caption{Activación completa para el caso \emph{\CaseLabelestudiantesolido}.}
+\end{table}

@@ -3,33 +3,58 @@
 
 \subsection{Arquitectura del monorepo}
 
-El proyecto se organiza como monorepo con pnpm y Turborepo. La aplicación web usa Next.js App Router con TypeScript y Tailwind CSS. La interfaz usa componentes estilo shadcn/ui, React Flow para el grafo, Recharts para gráficas, Motion for React para animación y KaTeX para fórmulas en vivo \citep{nextjs2026app,turborepo2026next,shadcn2026monorepo,reactflow2026overview,recharts2026docs,motion2026react,katex2026browser}.
+El proyecto se organiza como monorepo con \texttt{pnpm workspaces} y \texttt{Turborepo}. La tabla~\ref{tab:arquitectura} describe las cuatro capas y su responsabilidad funcional. La aplicación web utiliza Next.js App Router con TypeScript y Tailwind CSS, componentes estilo shadcn/ui, React Flow para el grafo, Recharts para gráficas, Motion for React para animación y KaTeX para fórmulas en vivo \citep{nextjs2026app,turborepo2026next,shadcn2026monorepo,reactflow2026overview,recharts2026docs,motion2026react,katex2026browser}.
 
-\begin{lstlisting}
-apps/web
-packages/fuzzy-core
-packages/report
-\end{lstlisting}
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabularx}{0.96\linewidth}{l l X}
+    \toprule
+    \textbf{Capa} & \textbf{Tecnología} & \textbf{Responsabilidad}\\
+    \midrule
+    \texttt{apps/web} & Next.js + React + Recharts + KaTeX & Interfaz visual, grafo de reglas, fórmulas en vivo, descargas\\
+    \texttt{packages/fuzzy-core} & TypeScript puro & Motor Mamdani determinista (única fuente de verdad)\\
+    \texttt{packages/report} & LaTeX + PGFPlots + biblatex & Documento académico con figuras vectoriales y datos sincronizados\\
+    \texttt{packages/presentation} & PptxGenJS & Presentación editable generada al vuelo desde el motor\\
+    \bottomrule
+  \end{tabularx}
+  \caption{Arquitectura del monorepo. Las cuatro capas comparten una única definición del sistema difuso a través de \texttt{fuzzy-core}.}
+  \label{tab:arquitectura}
+\end{table}
 
 \subsection{Motor difuso}
 
-El paquete \texttt{fuzzy-core} contiene TypeScript puro. Sus módulos principales son:
+El paquete \texttt{fuzzy-core} contiene TypeScript puro sin dependencias en tiempo de ejecución. Sus módulos principales y su correspondencia con las etapas del modelo Mamdani (figura~\ref{fig:flujo-mamdani}) son:
 
 \begin{itemize}
-  \item \texttt{membership.ts}: funciones triangular y trapezoidal.
-  \item \texttt{rules.ts}: reglas lingüísticas.
-  \item \texttt{mamdani.ts}: inferencia min-max.
-  \item \texttt{centroid.ts}: defuzzificación.
-  \item \texttt{academic-risk-system.ts}: definición del sistema.
+  \item \texttt{membership.ts}: implementación de las funciones triangular y trapezoidal y operación de fuzzificación.
+  \item \texttt{rules.ts}: declaración de la base de reglas IF-THEN con metadatos para trazabilidad.
+  \item \texttt{academic-risk-system.ts}: definición de variables, conjuntos lingüísticos y caso de prueba por defecto.
+  \item \texttt{mamdani.ts}: motor de inferencia con AND mínimo, recorte, agregación máximo y construcción de la curva de salida.
+  \item \texttt{centroid.ts}: defuzzificación por centroide discreto.
 \end{itemize}
 
-\subsection{Interfaz}
+\subsection{Sincronización entre motor y reporte}
 
-La interfaz muestra entradas numéricas, funciones de pertenencia, grados calculados, reglas activadas, valor $\alpha$ por regla, área recortada, salida agregada, centroide, resultado crisp y etiqueta lingüística final. El grafo visual sigue este orden:
+El script \texttt{packages/report/scripts/emit-data.ts} lee la definición del sistema directamente desde \texttt{fuzzy-core} y emite:
 
-\[
-\begin{aligned}
-\text{Entradas} &\rightarrow \text{Fuzzificación} \rightarrow \text{Grados} \rightarrow \text{Reglas}\\
-&\rightarrow \text{Recorte} \rightarrow \text{Agregación} \rightarrow \text{Centroide} \rightarrow \text{Resultado}
-\end{aligned}
-\]
+\begin{itemize}
+  \item Archivos \texttt{.dat} con las muestras de las funciones de pertenencia (paso $0.5$).
+  \item Archivos \texttt{.dat} con las curvas agregadas para cada caso de prueba.
+  \item Fragmentos \texttt{.tex} con tablas de parámetros, reglas y reportes por caso.
+  \item Macros LaTeX con escalas numéricas (centroide, denominador, dominante) para inserción directa en el texto.
+\end{itemize}
+
+De esta forma, cualquier modificación en el motor se refleja automáticamente en las figuras y tablas del reporte cuando se ejecuta \texttt{pnpm report}. Esto elimina el riesgo de desincronización entre código y documento.
+
+\subsection{Interfaz web y descargas}
+
+La interfaz expone cinco sliders, el resultado crisp, la etiqueta lingüística, el grafo de razonamiento, las funciones de pertenencia con el valor activo y las fórmulas en vivo. La barra superior contiene tres acciones de descarga:
+
+\begin{enumerate}
+  \item Presentación \texttt{.pptx} generada al vuelo con los inputs actuales del usuario.
+  \item Reporte académico \texttt{.pdf} (este documento) precompilado y servido como recurso estático.
+  \item Resumen ejecutivo \texttt{.pdf} generado en el navegador con \texttt{jsPDF}, conteniendo los valores actuales, gráficas vectoriales y recomendaciones.
+\end{enumerate}
+
+La captura de las gráficas vectoriales se realiza serializando el SVG renderizado por Recharts y rasterizándolo en un canvas oculto a $2\times$ de densidad, lo que garantiza nitidez en las dos exportaciones dinámicas.

@@ -1,0 +1,26 @@
+% !TEX root = ../main.tex
+\section*{Glosario de símbolos y abreviaturas}
+\addcontentsline{toc}{section}{Glosario de símbolos}
+
+\begin{tabularx}{\linewidth}{l X}
+\toprule
+\textbf{Símbolo} & \textbf{Descripción}\\
+\midrule
+$X$ & Universo de discurso de una variable lingüística (en este sistema, $[0,100]$).\\
+$A,B$ & Conjuntos difusos definidos sobre $X$ por sus funciones de pertenencia.\\
+$\mu_A(x)$ & Función de pertenencia del conjunto $A$ evaluada en $x \in X$. Toma valores en $[0,1]$.\\
+$T(a,b,c)$ & Función triangular con pies en $a$ y $c$, cresta en $b$.\\
+$Z(a,b,c,d)$ & Función trapezoidal con pies en $a$ y $d$, meseta en $[b,c]$.\\
+$\alpha_r$ & Grado de activación de la regla $r$, calculado como mínimo de los grados de los antecedentes.\\
+$\mu_{B'_r}(y)$ & Conjunto consecuente de $r$ recortado por $\alpha_r$ vía implicación Mamdani.\\
+$\mu_B(y)$ & Conjunto agregado obtenido por máximo punto a punto sobre todas las salidas recortadas.\\
+$y^*$ & Valor crisp obtenido por defuzzificación centroide sobre $\mu_B$.\\
+IF-THEN & Regla lingüística con antecedentes en lenguaje natural y consecuente difuso.\\
+Mamdani & Esquema de inferencia con AND mínimo, agregación máximo e implicación mínimo.\\
+Centroide & Método de defuzzificación que devuelve el centro de masa de $\mu_B$.\\
+\bottomrule
+\end{tabularx}
+
+\paragraph{Convenciones notacionales}
+A lo largo del documento se usa $x$ para entradas crisp, $y$ para la salida crisp, $r$ para el índice de una regla, $\alpha$ para el grado de activación y $\mu$ para los grados de pertenencia. Las etiquetas lingüísticas se escriben en minúsculas y cursiva (\emph{bajo, regular, alto, crítico}).
+\newpage

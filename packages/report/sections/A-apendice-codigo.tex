@@ -1,0 +1,71 @@
+% !TEX root = ../main.tex
+\section{Código fuente del motor difuso}
+\label{ap:codigo}
+
+Este apéndice incluye los módulos esenciales del paquete \texttt{fuzzy-core} para permitir verificación independiente de la implementación. Cada listado corresponde literalmente al archivo del repositorio.
+
+\subsection{Funciones de pertenencia (\texttt{membership.ts})}
+
+\begin{lstlisting}[language=Java,caption={Funciones triangular y trapezoidal con clamp en [0,1].}]
+export function triangular(x, a, b, c) {
+  if (x <= a || x >= c) return 0;
+  if (x === b) return 1;
+  if (x < b) return clamp01((x - a) / (b - a));
+  return clamp01((c - x) / (c - b));
+}
+
+export function trapezoidal(x, a, b, c, d) {
+  if (x < a || x > d) return 0;
+  if (a === b && x <= b) return 1;
+  if (c === d && x >= c) return 1;
+  if (x >= b && x <= c) return 1;
+  if (x > a && x < b) return clamp01((x - a) / (b - a));
+  if (x > c && x < d) return clamp01((d - x) / (d - c));
+  return 0;
+}
+\end{lstlisting}
+
+\subsection{Inferencia Mamdani (\texttt{mamdani.ts})}
+
+\begin{lstlisting}[language=Java,caption={Construccion de activaciones, agregacion y centroide.}]
+const ruleActivations = system.rules.map((rule) => {
+  const antecedentDegrees = rule.antecedents.map((a) => ({
+    variable: a.variable,
+    term: a.term,
+    degree: fuzzification[a.variable][a.term] ?? 0,
+  }));
+  const alpha = Math.min(...antecedentDegrees.map((d) => d.degree));
+  const consequent = output.terms.find((t) => t.id === rule.consequent.term);
+  const clippedArea = sampleUniverse(output, resolution)
+    .reduce((area, x) => area + Math.min(alpha, evaluateMembership(consequent.shape, x)) * resolution, 0);
+  return { rule, alpha, antecedentDegrees, clippedArea };
+});
+
+for (let x = output.min; x <= output.max; x += resolution) {
+  const sample = { x, aggregated: 0 };
+  for (const term of output.terms) {
+    const termAlpha = Math.max(0, ...ruleActivations
+      .filter((act) => act.rule.consequent.term === term.id)
+      .map((act) => act.alpha));
+    sample[term.id] = Math.min(termAlpha, evaluateMembership(term.shape, x));
+    sample.aggregated = Math.max(sample.aggregated, sample[term.id]);
+  }
+  outputSamples.push(sample);
+}
+\end{lstlisting}
+
+\subsection{Defuzzificacion por centroide (\texttt{centroid.ts})}
+
+\begin{lstlisting}[language=Java,caption={Centroide discreto.}]
+export function centroid(samples) {
+  const numerator = samples.reduce((s, p) => s + p.x * p.aggregated, 0);
+  const denominator = samples.reduce((s, p) => s + p.aggregated, 0);
+  return {
+    value: denominator === 0 ? 0 : numerator / denominator,
+    numerator,
+    denominator,
+  };
+}
+\end{lstlisting}
+
+La implementación completa, incluyendo definición de variables, reglas, casos de prueba y configuración del monorepo, se encuentra en el repositorio del proyecto bajo el directorio \texttt{packages/fuzzy-core/src}.

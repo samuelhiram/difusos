@@ -1,0 +1,66 @@
+% !TEX root = ../main.tex
+\section{Parámetros formales y datos discretos}
+\label{ap:parametros}
+
+Este apéndice consolida los parámetros de todos los conjuntos difusos y las muestras de las funciones de pertenencia. La intención es proveer la información necesaria para reproducir el sistema en cualquier herramienta numérica (Python con \texttt{scikit-fuzzy}, MATLAB Fuzzy Logic Toolbox, NumPy puro, etc.) sin requerir el código TypeScript.
+
+\subsection{Tabla maestra de parámetros}
+
+Se reproduce la tabla~\ref{tab:parametros} para conveniencia del lector:
+
+\begin{longtable}{P{0.27\linewidth}P{0.18\linewidth}P{0.16\linewidth}P{0.27\linewidth}}
+\toprule
+\textbf{Variable} & \textbf{Conjunto} & \textbf{Tipo} & \textbf{Parámetros}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Variable} & \textbf{Conjunto} & \textbf{Tipo} & \textbf{Parámetros}\\
+\midrule
+\endhead
+\VariableParamsRows
+\bottomrule
+\end{longtable}
+
+\subsection{Definición ejecutable en pseudo-Python}
+
+\begin{lstlisting}[caption={Definicion equivalente del sistema en pseudo-Python},language=Python]
+def triangular(x, a, b, c):
+    if x <= a or x >= c: return 0
+    if x < b: return (x - a) / (b - a)
+    return (c - x) / (c - b)
+
+def trapezoidal(x, a, b, c, d):
+    if x < a or x > d: return 0
+    if b <= x <= c: return 1
+    if x < b: return (x - a) / (b - a) if a != b else 1
+    return (d - x) / (d - c) if c != d else 1
+
+inputs = {
+  "average":       {"low": ("Z", 0,  0, 45, 60),
+                    "regular": ("T", 45, 65, 80),
+                    "high": ("Z", 70, 85, 100, 100)},
+  "attendance":    {"low": ("Z", 0,  0, 55, 70),
+                    "medium": ("T", 60, 75, 88),
+                    "high": ("Z", 82, 92, 100, 100)},
+  "assignments":   {"insufficient": ("Z", 0,  0, 45, 60),
+                    "partial": ("T", 50, 70, 85),
+                    "complete": ("Z", 78, 90, 100, 100)},
+  "participation": {"low": ("Z", 0,  0, 35, 50),
+                    "medium": ("T", 40, 60, 78),
+                    "high": ("Z", 70, 85, 100, 100)},
+  "exams":         {"deficient": ("Z", 0,  0, 45, 60),
+                    "regular": ("T", 50, 68, 82),
+                    "good": ("Z", 75, 88, 100, 100)},
+}
+
+output = {
+  "low": ("Z", 0,  0, 20, 35),
+  "medium": ("T", 25, 45, 65),
+  "high": ("T", 55, 72, 88),
+  "critical": ("Z", 78, 90, 100, 100),
+}
+\end{lstlisting}
+
+\subsection{Muestreo numérico de las funciones de pertenencia}
+
+Los archivos \texttt{data/membership-*.dat} contienen las muestras numéricas (paso 0.5 sobre $[0,100]$) usadas para generar las figuras~\ref{fig:mf-average} a~\ref{fig:mf-risk}. Se incluyen en el repositorio para facilitar la verificación de cada curva.

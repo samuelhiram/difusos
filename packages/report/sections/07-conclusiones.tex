@@ -1,20 +1,42 @@
 % !TEX root = ../main.tex
 \section{Conclusiones}
 
-El sistema difuso Mamdani propuesto modela el riesgo académico como una transición gradual y no como una decisión binaria. La combinación de variables lingüísticas, reglas IF-THEN, agregación por máximo y centroide permite obtener un resultado numérico explicable.
+El sistema difuso Mamdani propuesto modela el riesgo académico como una transición gradual entre conjuntos lingüísticos. La combinación de funciones de pertenencia triangulares y trapezoidales, diez reglas IF-THEN, agregación máximo y defuzzificación centroide produce un resultado numérico explicable y reproducible, sin recurrir a aprendizaje automático ni estadística predictiva.
 
-La solución es adecuada para demostración académica porque expone funciones de pertenencia, reglas activadas, grados $\alpha$, recortes, agregación y defuzzificación. No depende de datos históricos ni entrenamiento, por lo que se mantiene dentro de la lógica difusa clásica.
+El análisis de sensibilidad demuestra que el sistema discrimina entre escenarios contrastantes con valores claramente diferenciados y sin saltos artificiales. La sincronización entre motor TypeScript, reporte LaTeX y presentación PptxGenJS asegura que los tres entregables compartan una única definición del sistema, eliminando el riesgo de divergencia entre documentación y código.
+
+\subsection{Aportes del proyecto}
+
+\begin{itemize}
+  \item Motor determinista en TypeScript puro auditable línea por línea.
+  \item Reporte académico con figuras vectoriales generadas a partir del motor.
+  \item Presentación editable PptxGenJS que se regenera con el caso analizado.
+  \item Interfaz web interactiva con descargas integradas de los tres entregables.
+\end{itemize}
+
+\subsection{Limitaciones}
+
+\begin{itemize}
+  \item Las funciones de pertenencia se calibran por criterio experto. Una revisión periódica con docentes asegura su validez en distintos contextos académicos.
+  \item La base de reglas crece de forma combinatoria con el número de variables; sistemas más complejos requerirán jerarquías o metareglas.
+  \item El sistema produce alertas, no diagnósticos: la decisión final requiere validación humana por el tutor académico.
+\end{itemize}
+
+\subsection{Trabajo futuro}
+
+Como continuación natural se contemplan: tuning automático de los conjuntos mediante ANFIS preservando la interpretabilidad, integración con plataformas LMS para alimentar las variables, evaluación longitudinal por semestre y comparación con expertos humanos. La extensión a sistemas tipo-2 \citep{castillo2008type2} permitirá modelar la incertidumbre en los propios parámetros de las funciones de pertenencia.
 
 \section{Checklist de validación}
 
 \begin{itemize}
-  \item Variables de entrada y salida definidas.
-  \item Funciones triangulares y trapezoidales incluidas.
-  \item Reglas IF-THEN visibles.
-  \item Inferencia Mamdani con mínimo.
-  \item Agregación con máximo.
-  \item Defuzzificación por centroide.
-  \item Resultado crisp y etiqueta lingüística.
-  \item Interfaz con gráficas, grafo, animación y fórmulas.
-  \item Sin machine learning ni modelos estadísticos.
+  \item Variables de entrada y salida definidas con rangos y conjuntos.
+  \item Funciones triangulares y trapezoidales graficadas a partir del motor.
+  \item Reglas IF-THEN visibles con justificación lingüística.
+  \item Inferencia Mamdani con AND mínimo verificada paso a paso.
+  \item Agregación máximo y defuzzificación centroide documentadas.
+  \item Resultado crisp y etiqueta lingüística reportados para cuatro casos.
+  \item Análisis de sensibilidad con casos contrastantes incluido.
+  \item Apéndice con código fuente del motor y activación completa de reglas.
+  \item Interfaz interactiva con descargas integradas.
+  \item Sin machine learning, redes neuronales, regresión ni modelos estadísticos.
 \end{itemize}

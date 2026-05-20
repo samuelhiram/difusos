@@ -1,0 +1,95 @@
+% !TEX root = ../main.tex
+\input{data/sensitivity}
+\input{data/case-estudiante-recuperando-rule-activations}
+
+\section{Análisis de sensibilidad}
+
+Para validar que el sistema discrimina entre escenarios académicos contrastantes se evaluaron tres casos adicionales con perfiles claramente distintos al caso de referencia. La tabla~\ref{tab:sensibilidad} resume los resultados obtenidos directamente del motor.
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{l r l r}
+    \toprule
+    \textbf{Caso} & \textbf{Centroide $y^*$} & \textbf{Etiqueta} & \textbf{Reglas activadas}\\
+    \midrule
+    \SensitivityRows
+    \bottomrule
+  \end{tabular}
+  \caption{Resultado del sistema frente a tres casos contrastantes y el caso de referencia. El motor responde con valores claramente diferenciados.}
+  \label{tab:sensibilidad}
+\end{table}
+
+\subsection{Caso \emph{estudiante en recuperación}}
+
+Las entradas se elevan en asistencia, participación y exámenes recientes. El sistema lo clasifica como riesgo \emph{\CaseLabelIdestudianterecuperando} con centroide $y^*=\CaseCentroidestudianterecuperando$. Las reglas activadas se documentan en la tabla~\ref{tab:sensibilidad-recuperando}.
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabular}{l r l r}
+    \toprule
+    \textbf{Regla} & \textbf{$\alpha_r$} & \textbf{Consecuente} & \textbf{Área}\\
+    \midrule
+    \CaseRulesestudianterecuperando
+    \bottomrule
+  \end{tabular}
+  \caption{Reglas activadas para el caso \emph{estudiante en recuperación}.}
+  \label{tab:sensibilidad-recuperando}
+\end{table}
+
+\subsection{Caso \emph{estudiante crítico}}
+
+Caso de alarma máxima: todas las entradas se ubican en la zona baja. El sistema responde con riesgo \emph{\CaseLabelIdestudiantecritico} y centroide $y^*=\CaseCentroidestudiantecritico$. La figura~\ref{fig:agg-critico} muestra la masa concentrada en los conjuntos de salida \emph{alto} y \emph{crítico}.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[aggregation,legend pos=outer north east]
+      \addplot[difLow,dashed] table[x=x,y=low]{data/case-estudiante-critico-aggregation.dat};
+      \addlegendentry{$B'_{\text{bajo}}$};
+      \addplot[difMedium,dashed] table[x=x,y=medium]{data/case-estudiante-critico-aggregation.dat};
+      \addlegendentry{$B'_{\text{medio}}$};
+      \addplot[difHigh,dashed] table[x=x,y=high]{data/case-estudiante-critico-aggregation.dat};
+      \addlegendentry{$B'_{\text{alto}}$};
+      \addplot[difCritical,dashed] table[x=x,y=critical]{data/case-estudiante-critico-aggregation.dat};
+      \addlegendentry{$B'_{\text{crítico}}$};
+      \addplot[difTeal,line width=1.6pt,fill=difTeal,fill opacity=0.18] table[x=x,y=agregada]{data/case-estudiante-critico-aggregation.dat} \closedcycle;
+      \addlegendentry{$\mu_B(y)$};
+      \draw[difInk,line width=1pt,dash dot] (axis cs:\CaseCentroidestudiantecritico,0) -- (axis cs:\CaseCentroidestudiantecritico,1.02);
+      \node[anchor=south,font=\footnotesize,difInk] at (axis cs:\CaseCentroidestudiantecritico,1.02) {$y^*=\CaseCentroidestudiantecritico$};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Agregación para el caso \emph{estudiante crítico}. La masa se desplaza hacia los conjuntos de salida más severos.}
+  \label{fig:agg-critico}
+\end{figure}
+
+\subsection{Caso \emph{estudiante sólido}}
+
+Caso de bajo riesgo. La combinación de promedio alto, asistencia muy alta y exámenes buenos produce un centroide $y^*=\CaseCentroidestudiantesolido$ y etiqueta \emph{\CaseLabelIdestudiantesolido}. La figura~\ref{fig:agg-solido} ilustra cómo la masa agregada se concentra en el conjunto \emph{bajo}.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[aggregation,legend pos=outer north east]
+      \addplot[difLow,dashed] table[x=x,y=low]{data/case-estudiante-solido-aggregation.dat};
+      \addlegendentry{$B'_{\text{bajo}}$};
+      \addplot[difMedium,dashed] table[x=x,y=medium]{data/case-estudiante-solido-aggregation.dat};
+      \addlegendentry{$B'_{\text{medio}}$};
+      \addplot[difHigh,dashed] table[x=x,y=high]{data/case-estudiante-solido-aggregation.dat};
+      \addlegendentry{$B'_{\text{alto}}$};
+      \addplot[difCritical,dashed] table[x=x,y=critical]{data/case-estudiante-solido-aggregation.dat};
+      \addlegendentry{$B'_{\text{crítico}}$};
+      \addplot[difTeal,line width=1.6pt,fill=difTeal,fill opacity=0.18] table[x=x,y=agregada]{data/case-estudiante-solido-aggregation.dat} \closedcycle;
+      \addlegendentry{$\mu_B(y)$};
+      \draw[difInk,line width=1pt,dash dot] (axis cs:\CaseCentroidestudiantesolido,0) -- (axis cs:\CaseCentroidestudiantesolido,1.02);
+      \node[anchor=south,font=\footnotesize,difInk] at (axis cs:\CaseCentroidestudiantesolido,1.02) {$y^*=\CaseCentroidestudiantesolido$};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Agregación para el caso \emph{estudiante sólido}. La salida agregada se desplaza hacia los conjuntos de menor riesgo.}
+  \label{fig:agg-solido}
+\end{figure}
+
+\subsection{Conclusión del análisis de sensibilidad}
+
+Los cuatro casos producen valores numéricos y etiquetas lingüísticas claramente diferenciados, sin discontinuidades artificiales y sin que ninguna decisión dependa de un umbral rígido. Esto demuestra que el sistema cumple su objetivo de razonamiento gradual y reproduce el comportamiento esperado de un experto al evaluar perfiles académicos contrastantes.

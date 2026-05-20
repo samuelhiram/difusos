@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/build-pptx.ts",
+      "default": "./src/build-pptx.ts"
+    }
+  },
   "scripts": {
     "build": "tsx src/generate.ts",
     "watch": "tsx watch src/generate.ts"

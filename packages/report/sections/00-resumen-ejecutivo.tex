@@ -1,0 +1,20 @@
+% !TEX root = ../main.tex
+\section*{Resumen ejecutivo}
+\addcontentsline{toc}{section}{Resumen ejecutivo}
+
+Este documento presenta un sistema difuso tipo Mamdani para estimar el riesgo académico de un estudiante en una escala continua de 0 a 100. La estimación se construye exclusivamente con lógica difusa clásica: conjuntos definidos por funciones triangulares y trapezoidales, reglas IF-THEN, operadores mínimo y máximo, y defuzzificación por centroide. No se utiliza aprendizaje automático, estadística predictiva ni bases de datos históricas.
+
+\paragraph{Aportes principales}
+\begin{itemize}
+  \item Motor determinista implementado en \texttt{TypeScript} puro, con cinco variables lingüísticas de entrada (\emph{promedio actual, asistencia, entregas, participación, exámenes}) y una variable de salida (\emph{riesgo académico}).
+  \item Diez reglas lingüísticas IF-THEN que cubren los casos típicos de riesgo crítico, alto, medio y bajo, todas auditables desde la interfaz.
+  \item Cadena de inferencia completa: fuzzificación, agregación por máximo punto a punto y defuzzificación por centroide, expresadas mediante figuras vectoriales generadas con PGFPlots.
+  \item Interfaz web interactiva en \texttt{Next.js} que reproduce paso a paso la inferencia y permite descargar este reporte, la presentación y un resumen ejecutivo del caso analizado.
+\end{itemize}
+
+\paragraph{Resultado del caso de referencia}
+Para el caso \emph{\CaseLabelestudiantetipicoriesgoalto} (promedio 58, asistencia 64, entregas 55, participación 48, exámenes 52) el motor calcula un riesgo de \textbf{\CaseCentroidestudiantetipicoriesgoalto} sobre 100, con etiqueta lingüística \textbf{\CaseLabelIdestudiantetipicoriesgoalto}. Se activan \CaseActiveRulesCountestudiantetipicoriesgoalto{} reglas y el centroide ubica la salida en el conjunto \emph{\CaseDominantTermestudiantetipicoriesgoalto} con grado de pertenencia $\mu=\CaseDominantMuestudiantetipicoriesgoalto$.
+
+\paragraph{Defensibilidad académica}
+Cada paso del razonamiento es transparente y reproducible. El reporte incluye listas completas de figuras, tablas, glosario de símbolos, apéndices con código fuente del motor, activación de la totalidad de las reglas y parámetros formales de cada conjunto difuso. La sincronización con el motor TypeScript se efectúa mediante un script \texttt{emit-data} que regenera los datos numéricos de las figuras y tablas, garantizando que el documento nunca diverja del comportamiento real del sistema.
+\newpage

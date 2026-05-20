@@ -11,6 +11,7 @@ import { DefuzzificationChart } from "@/components/fuzzy/DefuzzificationChart";
 import { LatexPanel } from "@/components/fuzzy/LatexPanel";
 import { InterpretationPanel } from "@/components/fuzzy/InterpretationPanel";
 import { ResultPanel } from "@/components/fuzzy/ResultPanel";
+import { DownloadBar } from "@/components/fuzzy/DownloadBar";
 import { useFuzzyStore } from "@/lib/use-fuzzy-store";
 
 export function FuzzyDashboard() {
@@ -19,6 +20,7 @@ export function FuzzyDashboard() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col gap-4 px-4 py-4 lg:px-6">
+      <DownloadBar values={values} result={result} />
       <section className="grid gap-4 xl:grid-cols-[360px_390px_minmax(0,1fr)]">
         <div className="space-y-4">
           <InputPanel values={values} onValueChange={setValue} />
