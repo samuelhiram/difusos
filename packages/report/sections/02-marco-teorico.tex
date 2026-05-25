@@ -159,6 +159,77 @@ Una variable lingüística toma valores expresados en lenguaje natural. \citet{z
   \label{fig:mf-risk}
 \end{figure}
 
+\subsection{Operadores: t-normas y t-conormas}
+\label{sec:tnorms}
+
+Las conjunciones y disyunciones difusas se modelan formalmente con \emph{t-normas} y \emph{t-conormas} \citep{klir1995fuzzy}. Una t-norma es una función $T:[0,1]^2\to[0,1]$ conmutativa, asociativa, monótona no decreciente y con $T(a,1)=a$. Una t-conorma $S$ cumple las mismas propiedades con $S(a,0)=a$. La tabla~\ref{tab:tnorms} recoge las tres familias canónicas y la justificación de la elección hecha en este sistema.
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabularx}{0.96\linewidth}{l l l X}
+    \toprule
+    \textbf{Familia} & \textbf{t-norma $T(a,b)$} & \textbf{t-conorma $S(a,b)$} & \textbf{Propiedad relevante}\\
+    \midrule
+    Zadeh--Gödel & $\min(a,b)$ & $\max(a,b)$ & Idempotente, conservadora, no introduce escala\\
+    Probabilística & $a\cdot b$ & $a+b-a\cdot b$ & Penaliza ambos operandos; útil para evidencia independiente\\
+    Łukasiewicz & $\max(0,a+b-1)$ & $\min(1,a+b)$ & Estricta, satura con facilidad en $0$ o $1$\\
+    \bottomrule
+  \end{tabularx}
+  \caption{Familias clásicas de t-normas y t-conormas \citep{klir1995fuzzy,ross2010fuzzy}.}
+  \label{tab:tnorms}
+\end{table}
+
+Este trabajo elige el par $(T_{\min},S_{\max})$ por tres razones académicas: (i) es la formulación original de Mamdani \citep{mamdani1975experiment}; (ii) la idempotencia $T(a,a)=a$ es deseable cuando los antecedentes provienen de evidencias del mismo estudiante, evitando dobles penalizaciones; y (iii) si una sola dimensión académica del estudiante está mal, la conservadora $\min$ reporta ese factor crítico sin diluirlo con un promedio.
+
+\subsection{Comparativa de arquitecturas de inferencia}
+\label{sec:arquitecturas}
+
+Existen tres arquitecturas dominantes para sistemas difusos basados en reglas. La elección de Mamdani en este proyecto se justifica formalmente frente a sus alternativas:
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabularx}{0.96\linewidth}{l X X X}
+    \toprule
+    \textbf{Modelo} & \textbf{Consecuente} & \textbf{Defuzzificación} & \textbf{Uso típico}\\
+    \midrule
+    Mamdani \citep{mamdani1975experiment} & Conjunto difuso $B_r$ & Centroide / MoM & Sistemas explicables a humanos\\
+    Sugeno \citep{takagi1985fuzzy,sugeno1985industrial} & Función crisp $f_r(x)$ & Promedio ponderado por $\alpha_r$ & Control numérico, modelado adaptativo\\
+    Tsukamoto & Conjunto monótono $B_r$ & Promedio ponderado de los $y_r$ & Casos donde se requiere salida crisp por regla\\
+    \bottomrule
+  \end{tabularx}
+  \caption{Arquitecturas de inferencia difusa basadas en reglas.}
+  \label{tab:arquitecturas}
+\end{table}
+
+Mamdani es el único de los tres que produce un conjunto difuso intermedio como consecuente, lo que permite mostrar la curva $\mu_B(y)$ y, por tanto, hacer explicable el razonamiento. Sugeno se usa cuando lo que importa es la precisión numérica del control (\citet{takagi1985fuzzy}) y suele acoplarse con tuning automático \citep{jang1993anfis}, lo que rompe la auditabilidad buscada en este proyecto.
+
+\subsection{Métodos de defuzzificación}
+\label{sec:defuzz-methods}
+
+La literatura reconoce al menos cinco métodos clásicos para colapsar $\mu_B(y)$ a un escalar:
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabularx}{0.96\linewidth}{l X X}
+    \toprule
+    \textbf{Método} & \textbf{Idea} & \textbf{Comportamiento}\\
+    \midrule
+    Centroide (CoG) & Centro de masa de $\mu_B$ & Continuo, suave, sensible a toda la curva\\
+    Bisector & Divide el área en dos mitades iguales & Estable, ignora forma fina\\
+    MoM (Mean of Maxima) & Promedio de $y$ donde $\mu_B$ es máxima & Discontinuo, útil en control on/off\\
+    SoM / LoM & Menor / mayor $y$ donde $\mu_B$ es máxima & Decisiones extremas, no recomendado para evaluación\\
+    Promedio ponderado & Promedio de $y_r$ por $\alpha_r$ (Sugeno) & Sólo aplicable a consecuentes crisp\\
+    \bottomrule
+  \end{tabularx}
+  \caption{Métodos de defuzzificación clásicos \citep{ross2010fuzzy,lee1990fuzzy}.}
+  \label{tab:defuzz}
+\end{table}
+
+Se elige el centroide porque (a) produce una salida continua y derivable respecto a las entradas, propiedad clave para la sensibilidad del tablero interactivo; (b) integra toda la información de las reglas activas sin descartar masa; y (c) es el método estándar de la literatura pedagógica difusa \citep{ross2010fuzzy,lee1990fuzzy}.
+
 \subsection{Inferencia Mamdani}
 
 El enfoque Mamdani usa reglas lingüísticas y funciones de pertenencia para construir una salida difusa \citep{mamdani1975experiment,mamdani1974application}. Para una regla $r$ con antecedentes $A_1,\ldots,A_n$, el operador AND se calcula por mínimo:

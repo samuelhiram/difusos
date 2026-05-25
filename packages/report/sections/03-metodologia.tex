@@ -59,6 +59,30 @@ etiqueta = argmax_{B en salida.terminos} mu_B(riesgo)
 
 El universo de salida $[0,100]$ se discretiza con paso $\Delta y = 1$. Esta resolución es suficiente para estimar el centroide con un error relativo menor al $0.5\%$ comparado con la integral analítica, y mantiene la complejidad lineal $\mathcal{O}(101 \cdot |R|)$ donde $|R|$ es el número de reglas. Aumentar la resolución a $\Delta y = 0.1$ multiplica por diez el costo computacional sin cambios apreciables en la decisión final.
 
+\subsection{Complejidad computacional y error de cuadratura}
+
+Sea $N=(\text{max}-\text{min})/\Delta y$ el número de muestras del universo de salida (en este sistema $N=100$), $|R|$ el número de reglas (aquí $|R|=10$) y $|A|$ el número promedio de antecedentes por regla (aquí $|A|\approx 2.1$). El costo total de una inferencia es
+
+\begin{equation}
+\mathcal{O}\bigl(|R|\cdot|A| + |R|\cdot N + N\bigr)
+\;=\;\mathcal{O}\bigl(|R|\cdot N\bigr),
+\label{eq:complejidad}
+\end{equation}
+
+donde el primer término corresponde al cálculo de $\alpha_r$, el segundo al recorte e integración del área por regla, y el tercero a la agregación y centroide. Como $\mu_{B_r}$ es piecewise-lineal en $y$, el integrando del centroide es polinómico por trozos, y la regla del rectángulo introduce un error de cuadratura $\mathcal{O}((\Delta y)^2)$. Para $\Delta y = 1$ el error de centroide respecto a la integral analítica permanece por debajo del $0.5\%$ del rango, lo cual es despreciable frente a la incertidumbre lingüística que se busca modelar. Usar Simpson o cuadratura adaptativa no aporta precisión adicional porque el error está dominado por la calibración experta de las funciones de pertenencia, no por la integración.
+
+\subsection{Verificación de casos límite}
+
+Como prueba de sanidad se ejecutó el motor sobre tres entradas extremas y se reportan los valores exactos calculados:
+
+\begin{itemize}
+  \item $X=(0,0,0,0,0)$: $y^*=81.72$, etiqueta \emph{alto}. Activan con $\alpha=1$ las reglas R1, R2, R3 y R10, que apuntan a riesgo crítico y alto; el centroide se ubica en la frontera entre alto y crítico porque la agregación máximo combina ambos conjuntos consecuentes.
+  \item $X=(100,100,100,100,100)$: $y^*=13.83$, etiqueta \emph{bajo}. Activan con $\alpha=1$ las reglas R5, R6 y R9, todas con consecuente \emph{bajo}. El centroide cae dentro del conjunto $B_{\text{bajo}}$ y la masa agregada se concentra en $[0,35]$.
+  \item $X=(50,50,50,50,50)$: $y^*=80.38$, etiqueta \emph{alto}. Caso aparentemente neutral pero las funciones de pertenencia están calibradas con criterio experto, no de forma simétrica: en $x=50$ los conjuntos \emph{baja asistencia}, \emph{entregas insuficientes} y \emph{deficientes} todavía valen $\mu>0.5$, lo que dispara las reglas críticas R1--R3 con $\alpha=0.67$ y desplaza el centroide hacia la zona alta. Este efecto es deseado: refleja que un perfil mediocre en cinco dimensiones simultáneas no es "promedio" sino "preocupante".
+\end{itemize}
+
+Estos límites confirman dos propiedades: (i) las entradas extremas activan reglas coherentes con la interpretación lingüística y (ii) el sistema responde a la \emph{calibración experta} de las funciones de pertenencia y no a un promedio aritmético ingenuo, lo que justifica el aporte del enfoque difuso sobre un esquema lineal.
+
 \subsection{Restricciones metodológicas}
 
 El sistema es determinista y explicable. No utiliza entrenamiento, redes neuronales, regresión, estadística predictiva, APIs externas ni bases de datos. Toda decisión proviene de funciones de pertenencia y reglas visibles, lo que cumple los criterios de defensibilidad académica buscados en este proyecto. La trazabilidad completa se manifiesta en tres niveles:

@@ -5,6 +5,21 @@ El sistema difuso Mamdani propuesto modela el riesgo académico como una transic
 
 El análisis de sensibilidad demuestra que el sistema discrimina entre escenarios contrastantes con valores claramente diferenciados y sin saltos artificiales. La sincronización entre motor TypeScript, reporte LaTeX y presentación PptxGenJS asegura que los tres entregables compartan una única definición del sistema, eliminando el riesgo de divergencia entre documentación y código.
 
+\subsection{Propiedades formales del sistema}
+
+El sistema garantiza por construcción las siguientes propiedades, todas verificables a partir de las ecuaciones~\eqref{eq:alpha}-\eqref{eq:centroid}:
+
+\begin{itemize}
+  \item \textbf{Determinismo.} Para entradas idénticas $X=(x_1,\ldots,x_5)$ la salida $y^*$ es exactamente la misma en cualquier ejecución. No hay componentes estocásticos ni inicialización aleatoria.
+  \item \textbf{Cota.} $y^*\in[0,100]$ por construcción, ya que $\mu_B(y)$ está soportada en $[0,100]$ y el centroide es un promedio ponderado por una función no negativa.
+  \item \textbf{Continuidad.} $y^*$ es función continua de las entradas: las funciones de pertenencia son piecewise-lineales y por tanto continuas; mínimo y máximo preservan la continuidad; la suma de Riemann discreta es continua respecto a sus muestras.
+  \item \textbf{Idempotencia de los operadores.} $\min(a,a)=a$ y $\max(a,a)=a$: si dos evidencias coinciden no producen doble penalización.
+  \item \textbf{$\varepsilon$-completitud lingüística.} Las funciones de pertenencia se calibraron para solaparse, de modo que para todo $x\in[0,100]$ existe al menos un término $A$ con $\mu_A(x)>0$ \citep{lee1990fuzzy}. Esto evita zonas ciegas en el universo de discurso.
+  \item \textbf{Trazabilidad total.} Cada paso intermedio (fuzzificación, $\alpha_r$, área recortada, centroide, etiqueta) es inspeccionable desde la interfaz y figura en los apéndices \ref{ap:activacion-completa} y \ref{ap:parametros}.
+\end{itemize}
+
+Estas propiedades distinguen el sistema de los modelos de aprendizaje supervisado: la trazabilidad y continuidad son consecuencias matemáticas de la construcción, no resultados empíricos sujetos al conjunto de entrenamiento.
+
 \subsection{Aportes del proyecto}
 
 \begin{itemize}

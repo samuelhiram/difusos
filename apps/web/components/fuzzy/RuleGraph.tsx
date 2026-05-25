@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+import { Workflow } from "lucide-react";
 import { Background, Controls, MarkerType, ReactFlow, type Edge, type Node } from "@xyflow/react";
 import type { MamdaniResult } from "@academic-risk/fuzzy-core";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Section } from "@/components/ui/section";
 
 type RuleGraphProps = {
   result: MamdaniResult;
@@ -16,60 +17,15 @@ export function RuleGraph({ result }: RuleGraphProps) {
 
   const nodes = useMemo<Node[]>(
     () => [
-      {
-        id: "inputs",
-        position: { x: 0, y: 95 },
-        data: { label: "Entradas numericas" },
-        className: nodeClass,
-      },
-      {
-        id: "fuzzification",
-        position: { x: 210, y: 95 },
-        data: { label: "Fuzzificacion" },
-        className: nodeClass,
-      },
-      {
-        id: "degrees",
-        position: { x: 420, y: 95 },
-        data: { label: "Grados de pertenencia" },
-        className: nodeClass,
-      },
-      {
-        id: "rules",
-        position: { x: 660, y: 30 },
-        data: { label: `Reglas IF-THEN activas: ${activeRules.length}` },
-        className: nodeClass,
-      },
-      {
-        id: "alpha",
-        position: { x: 660, y: 160 },
-        data: { label: "Intensidad alpha por regla" },
-        className: nodeClass,
-      },
-      {
-        id: "clipping",
-        position: { x: 920, y: 30 },
-        data: { label: "Recorte de salidas" },
-        className: nodeClass,
-      },
-      {
-        id: "aggregation",
-        position: { x: 920, y: 160 },
-        data: { label: "Agregacion max" },
-        className: nodeClass,
-      },
-      {
-        id: "centroid",
-        position: { x: 1160, y: 95 },
-        data: { label: `Centroide: ${result.centroid.toFixed(2)}` },
-        className: nodeClass,
-      },
-      {
-        id: "result",
-        position: { x: 1390, y: 95 },
-        data: { label: `Riesgo final: ${result.label}` },
-        className: `${nodeClass} border-primary bg-teal-50 font-semibold`,
-      },
+      { id: "inputs", position: { x: 0, y: 95 }, data: { label: "X = (x1..x5)" }, className: nodeClass },
+      { id: "fuzzification", position: { x: 210, y: 95 }, data: { label: "Fuzzificacion mu_A(x)" }, className: nodeClass },
+      { id: "degrees", position: { x: 420, y: 95 }, data: { label: "Grados mu in [0,1]" }, className: nodeClass },
+      { id: "rules", position: { x: 660, y: 30 }, data: { label: `Reglas R_r activas: ${activeRules.length}` }, className: nodeClass },
+      { id: "alpha", position: { x: 660, y: 160 }, data: { label: "alpha_r = min(mu_Ai)" }, className: nodeClass },
+      { id: "clipping", position: { x: 920, y: 30 }, data: { label: "mu'_B = min(alpha, mu_B)" }, className: nodeClass },
+      { id: "aggregation", position: { x: 920, y: 160 }, data: { label: "mu_B = max_r mu'_Br" }, className: nodeClass },
+      { id: "centroid", position: { x: 1160, y: 95 }, data: { label: `y* = ${result.centroid.toFixed(2)}` }, className: nodeClass },
+      { id: "result", position: { x: 1390, y: 95 }, data: { label: `L = ${result.label}` }, className: `${nodeClass} border-primary bg-teal-50 font-semibold` },
     ],
     [activeRules.length, result.centroid, result.label],
   );
@@ -98,27 +54,29 @@ export function RuleGraph({ result }: RuleGraphProps) {
   );
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Flujo visual del proceso</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[320px] w-full rounded-lg border bg-white">
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            fitView
-            minZoom={0.35}
-            maxZoom={1.4}
-            nodesDraggable={false}
-            nodesConnectable={false}
-            elementsSelectable={false}
-          >
-            <Background gap={18} size={1} />
-            <Controls showInteractive={false} />
-          </ReactFlow>
-        </div>
-      </CardContent>
-    </Card>
+    <Section
+      data-tour="rule-graph"
+      title="Flujo visual del proceso"
+      description="Cada nodo es una etapa de la inferencia Mamdani. Las aristas verdes son inferencia en vivo."
+      icon={<Workflow className="h-4 w-4" />}
+    >
+      <div className="h-[360px] w-full rounded-lg border bg-white">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          fitView
+          fitViewOptions={{ padding: 0.12 }}
+          minZoom={0.2}
+          maxZoom={1.6}
+          nodesDraggable={false}
+          nodesConnectable={false}
+          elementsSelectable={false}
+          proOptions={{ hideAttribution: true }}
+        >
+          <Background gap={18} size={1} />
+          <Controls showInteractive={false} />
+        </ReactFlow>
+      </div>
+    </Section>
   );
 }

@@ -477,12 +477,14 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
     const agendaItems = [
       "1.  Problema y contexto: por que evitar umbrales rigidos",
       "2.  Modelo Mamdani: fuzzificacion, inferencia, agregacion y centroide",
-      "3.  Variables linguisticas y funciones de pertenencia",
-      "4.  Base de reglas IF-THEN",
-      "5.  Caso de prueba en vivo y resultado crisp",
-      "6.  Analisis de sensibilidad: tres escenarios contrastantes",
-      "7.  Comparacion contra reglas rigidas",
-      "8.  Limitaciones, conclusiones y trabajo futuro",
+      "3.  Comparativa formal: Mamdani vs Sugeno vs Tsukamoto",
+      "4.  t-normas, t-conormas y metodos de defuzzificacion",
+      "5.  Variables linguisticas, funciones de pertenencia y reglas IF-THEN",
+      "6.  Caso de prueba en vivo y resultado crisp",
+      "7.  Analisis de sensibilidad: tres escenarios contrastantes",
+      "8.  Comparacion contra reglas rigidas",
+      "9.  Propiedades formales del sistema y garantias matematicas",
+      "10. Limitaciones, conclusiones y trabajo futuro",
     ];
     addBullets(slide, agendaItems, 0.95, 1.7, 11.5, 4.7, 17);
     addCard(
@@ -602,6 +604,145 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
     });
     slide.addNotes(
       "Recorrer cada paso explicando que ninguno requiere entrenamiento: son operaciones aritmeticas y de minimo/maximo sobre conjuntos definidos manualmente.",
+    );
+  }
+
+  pageNum += 1;
+  {
+    const slide = addContentSlide();
+    addHeader(slide, "Comparativa de arquitecturas difusas", "JUSTIFICACION DE MAMDANI");
+    const rows: TableRow[] = [
+      [
+        tcHead("Modelo", C.teal, C.white),
+        tcHead("Consecuente", C.teal, C.white),
+        tcHead("Defuzzificacion", C.teal, C.white),
+        tcHead("Uso tipico", C.teal, C.white),
+      ],
+      [tc("Mamdani (1975)"), tc("Conjunto difuso B_r"), tc("Centroide / MoM"), tc("Sistemas explicables a humanos")],
+      [tc("Sugeno (1985)"), tc("Funcion crisp f_r(x)"), tc("Promedio ponderado por alpha"), tc("Control numerico, modelado adaptativo")],
+      [tc("Tsukamoto"), tc("Conjunto monotono"), tc("Promedio ponderado de y_r"), tc("Salida crisp por regla")],
+    ];
+    slide.addTable(rows, {
+      x: 0.95,
+      y: 1.6,
+      w: 11.45,
+      h: 2.6,
+      fontSize: 12,
+      color: C.ink,
+      fill: { color: C.panel },
+      border: { type: "solid", color: C.line, pt: 0.8 },
+      margin: 0.1,
+      valign: "middle",
+      colW: [1.95, 2.6, 2.9, 4.0],
+    });
+    addCard(
+      slide,
+      0.95,
+      4.4,
+      11.45,
+      2.4,
+      "Por que Mamdani en este proyecto",
+      "Mamdani es el unico de los tres cuyo consecuente es un conjunto difuso, lo que permite mostrar la curva mu_B(y) y, por tanto, hacer EXPLICABLE el razonamiento paso a paso. Sugeno se usa cuando importa la precision numerica del control y suele acoplarse con tuning automatico (ANFIS), lo que rompe la auditabilidad. Tsukamoto restringe los consecuentes a funciones monotonas, lo cual limita el modelado de categorias como 'riesgo bajo / medio / alto / critico'.",
+      C.teal,
+    );
+    slide.addNotes(
+      "Justificar la eleccion frente a Sugeno y Tsukamoto. Subrayar que Mamdani conserva la trazabilidad linguistica de extremo a extremo y por eso es el estandar en sistemas de apoyo a decisiones.",
+    );
+  }
+
+  pageNum += 1;
+  {
+    const slide = addContentSlide();
+    addHeader(slide, "t-normas y t-conormas", "OPERADORES DIFUSOS FORMALES");
+    const rows: TableRow[] = [
+      [
+        tcHead("Familia", C.teal, C.white),
+        tcHead("t-norma  T(a,b)  (AND)", C.teal, C.white),
+        tcHead("t-conorma  S(a,b)  (OR)", C.teal, C.white),
+        tcHead("Caracteristica", C.teal, C.white),
+      ],
+      [tc("Zadeh / Godel"), tc("min(a, b)"), tc("max(a, b)"), tc("Idempotente, conservadora")],
+      [tc("Probabilistica"), tc("a * b"), tc("a + b - a*b"), tc("Penaliza ambos operandos")],
+      [tc("Lukasiewicz"), tc("max(0, a + b - 1)"), tc("min(1, a + b)"), tc("Estricta, satura facil")],
+    ];
+    slide.addTable(rows, {
+      x: 0.95,
+      y: 1.6,
+      w: 11.45,
+      h: 2.7,
+      fontSize: 12,
+      color: C.ink,
+      fill: { color: C.panel },
+      border: { type: "solid", color: C.line, pt: 0.8 },
+      margin: 0.1,
+      valign: "middle",
+      colW: [2.4, 3.3, 3.3, 2.45],
+    });
+    addCard(
+      slide,
+      0.95,
+      4.5,
+      5.55,
+      2.25,
+      "Eleccion: min / max (Zadeh)",
+      "1) Es la formulacion original de Mamdani.\n2) Idempotencia: dos evidencias iguales no se penalizan dos veces.\n3) Si una sola dimension del estudiante esta mal, el min lo reporta sin diluirlo en un promedio.",
+      C.teal,
+    );
+    addCard(
+      slide,
+      6.7,
+      4.5,
+      5.75,
+      2.25,
+      "Definicion formal",
+      "Una t-norma es T:[0,1]^2 -> [0,1] conmutativa, asociativa, monotona no decreciente y con T(a,1) = a. Una t-conorma S cumple lo mismo con S(a,0) = a. Min y max son el par canonico que preserva idempotencia y compatibilidad logica.",
+      C.gold,
+    );
+    slide.addNotes(
+      "Reforzar que la eleccion de min/max no es ingenua: es una eleccion formal entre tres familias canonicas, defendible por idempotencia y conservadurismo. Citar Klir y Yuan 1995.",
+    );
+  }
+
+  pageNum += 1;
+  {
+    const slide = addContentSlide();
+    addHeader(slide, "Metodos de defuzzificacion", "POR QUE CENTROIDE");
+    const rows: TableRow[] = [
+      [
+        tcHead("Metodo", C.teal, C.white),
+        tcHead("Idea", C.teal, C.white),
+        tcHead("Comportamiento", C.teal, C.white),
+      ],
+      [tc("Centroide (CoG)"), tc("Centro de masa del area mu_B(y)"), tc("Continuo, suave, sensible a toda la curva")],
+      [tc("Bisector"), tc("Divide el area en dos mitades iguales"), tc("Estable pero ignora forma fina")],
+      [tc("MoM (Mean of Maxima)"), tc("Promedio de y donde mu_B es maxima"), tc("Discontinuo, util en control on/off")],
+      [tc("SoM / LoM"), tc("Menor / mayor y donde mu_B es maxima"), tc("Decisiones extremas, no recomendado para evaluacion")],
+    ];
+    slide.addTable(rows, {
+      x: 0.95,
+      y: 1.6,
+      w: 11.45,
+      h: 2.85,
+      fontSize: 12,
+      color: C.ink,
+      fill: { color: C.panel },
+      border: { type: "solid", color: C.line, pt: 0.8 },
+      margin: 0.1,
+      valign: "middle",
+      colW: [2.55, 4.0, 4.9],
+    });
+    addCard(
+      slide,
+      0.95,
+      4.65,
+      11.45,
+      2.05,
+      "Por que se eligio centroide",
+      "1) Salida CONTINUA y derivable respecto a las entradas, lo que hace que los sliders muevan el resultado suavemente. 2) Integra TODA la informacion de las reglas activas, sin descartar masa. 3) Es el metodo mas citado en evaluaciones difusas pedagogicas (Ross 2010, Mendel 2017). 4) Costo O(N) con N=101 muestras: una inferencia completa toma <1 ms en JavaScript moderno.",
+      C.teal,
+    );
+    slide.addNotes(
+      "Mencionar que MoM produce saltos discretos cuando alpha cambia, lo que rompe la sensacion de gradualidad del tablero. CoG es la unica eleccion compatible con la promesa visual del sistema.",
     );
   }
 
@@ -1126,6 +1267,42 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
     );
     slide.addNotes(
       "Aceptar limites refuerza la credibilidad. Senalar el camino hacia ANFIS como evolucion natural sin abandonar el principio difuso.",
+    );
+  }
+
+  pageNum += 1;
+  {
+    const slide = addContentSlide();
+    addHeader(slide, "Propiedades formales del sistema", "GARANTIAS MATEMATICAS");
+    addBullets(
+      slide,
+      [
+        "Determinismo: identicas entradas producen identica salida. No hay estocasticidad ni inicializacion aleatoria.",
+        "Cota: y* en [0, 100] por construccion, porque mu_B(y) esta soportada en [0,100].",
+        "Continuidad: y* es continuo respecto a las entradas (funciones piecewise-lineales + min/max + suma de Riemann).",
+        "Idempotencia: min(a, a) = a y max(a, a) = a, evitando doble penalizacion de evidencias coincidentes.",
+        "Epsilon-completitud: para todo x en [0,100] existe al menos un termino con mu(x) > 0 (Lee, 1990). Sin zonas ciegas.",
+        "Trazabilidad total: cada paso intermedio (fuzzificacion, alpha, area, centroide) es inspeccionable en la UI y en los apendices.",
+        "Complejidad: O(|R| * N) = O(10 * 101) por inferencia, < 1 ms en JavaScript.",
+      ],
+      0.95,
+      1.6,
+      11.45,
+      4.5,
+      14,
+    );
+    addCard(
+      slide,
+      0.95,
+      6.2,
+      11.45,
+      0.7,
+      "Implicacion academica",
+      "Estas propiedades son CONSECUENCIAS MATEMATICAS de la construccion, no resultados empiricos. No dependen del conjunto de entrenamiento porque no existe entrenamiento.",
+      C.teal,
+    );
+    slide.addNotes(
+      "Insistir en que la diferencia con los modelos de ML supervisado es estructural: aqui las garantias se prueban, no se miden. Citar Klir y Yuan 1995, Lee 1990.",
     );
   }
 
