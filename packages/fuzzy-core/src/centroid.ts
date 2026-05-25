@@ -4,13 +4,24 @@ export type OutputSample = {
   [term: string]: number;
 };
 
-export function centroid(samples: OutputSample[]) {
+export type CentroidResult = {
+  value: number;
+  numerator: number;
+  denominator: number;
+  covered: boolean;
+};
+
+const COVERAGE_EPSILON = 1e-9;
+
+export function centroid(samples: OutputSample[]): CentroidResult {
   const numerator = samples.reduce((sum, sample) => sum + sample.x * sample.aggregated, 0);
   const denominator = samples.reduce((sum, sample) => sum + sample.aggregated, 0);
+  const covered = denominator > COVERAGE_EPSILON;
 
   return {
-    value: denominator === 0 ? 0 : numerator / denominator,
+    value: covered ? numerator / denominator : Number.NaN,
     numerator,
     denominator,
+    covered,
   };
 }

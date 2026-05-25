@@ -2,6 +2,10 @@
   "name": "academic-risk-fuzzy-system",
   "private": true,
   "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=18.18.0",
+    "pnpm": ">=9"
+  },
   "scripts": {
     "bootstrap": "powershell -ExecutionPolicy Bypass -File scripts/setup.ps1",
     "start": "pnpm install --prefer-offline --silent && pnpm --filter @academic-risk/web dev",
@@ -9,6 +13,7 @@
     "build": "turbo build --filter=!@academic-risk/report",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
+    "test": "pnpm --filter @academic-risk/fuzzy-core test",
     "report": "powershell -ExecutionPolicy Bypass -File scripts/build-report.ps1",
     "report:publish": "powershell -ExecutionPolicy Bypass -File scripts/publish-report.ps1",
     "report:open": "powershell -Command \"Start-Process packages/report/main.pdf\"",

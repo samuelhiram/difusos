@@ -1,7 +1,7 @@
 "use client";
 
 import type { MamdaniResult } from "@academic-risk/fuzzy-core";
-import { Activity, FileText, GitMerge, Sigma, Sparkles, Target } from "lucide-react";
+import { Activity, AlertTriangle, FileText, GitMerge, Sigma, Sparkles, Target } from "lucide-react";
 import { InlineMath } from "react-katex";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -58,7 +58,8 @@ export function HeroResult({ result }: HeroResultProps) {
   const meta = riskMeta[result.labelId] ?? riskMeta.medium;
   const activeRules = result.ruleActivations.filter((a) => a.alpha > 0);
   const dominantRule = activeRules.sort((a, b) => b.alpha - a.alpha)[0];
-  const pct = Math.min(100, Math.max(0, result.centroid));
+  const safeCentroid = Number.isFinite(result.centroid) ? result.centroid : 0;
+  const pct = Math.min(100, Math.max(0, safeCentroid));
   const markerPos = `calc(${pct}% - 6px)`;
 
   return (
@@ -93,13 +94,13 @@ export function HeroResult({ result }: HeroResultProps) {
                   <InlineMath math="y^*=" />
                 </span>
                 <span className="font-semibold tracking-tight tabular-nums text-foreground [font-size:clamp(2.5rem,5vw,3.75rem)]">
-                  {result.centroid.toFixed(2)}
+                  {result.covered ? result.centroid.toFixed(2) : "—"}
                 </span>
                 <span className="text-base font-normal text-muted-foreground">/100</span>
               </div>
               <div className="mt-1 overflow-x-auto text-[12px] text-muted-foreground">
                 <InlineMath
-                  math={String.raw`y^*=\dfrac{\sum y_i\,\mu_B(y_i)}{\sum\mu_B(y_i)}=\dfrac{${result.centroidNumerator.toFixed(2)}}{${result.centroidDenominator.toFixed(2)}}=${result.centroid.toFixed(2)}`}
+                  math={String.raw`y^*=\dfrac{\sum y_i\,\mu_B(y_i)}{\sum\mu_B(y_i)}=\dfrac{${result.centroidNumerator.toFixed(2)}}{${result.centroidDenominator.toFixed(2)}}=${result.covered ? result.centroid.toFixed(2) : "\\text{indef.}"}`}
                 />
               </div>
             </div>
@@ -133,6 +134,16 @@ export function HeroResult({ result }: HeroResultProps) {
               ) : null}
             </div>
           </div>
+
+          {!result.covered ? (
+            <div className="flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-[12px] text-amber-800">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>
+                Sin cobertura: ninguna regla disparo con alpha &gt; 0 para este caso. Revisa las funciones de membresia y la
+                base de reglas — los inputs cayeron en una zona sin soporte difuso.
+              </span>
+            </div>
+          ) : null}
 
           <div className="space-y-1.5">
             <div className="relative h-3 overflow-hidden rounded-full border border-border/70 bg-muted">

@@ -1,5 +1,6 @@
 import { centroid, type OutputSample } from "./centroid";
 import {
+  academicRiskInputs,
   academicRiskOutput,
   academicRiskSystem,
   type AcademicRiskInputValues,
@@ -26,11 +27,16 @@ export type MamdaniResult = {
   centroid: number;
   centroidNumerator: number;
   centroidDenominator: number;
+  covered: boolean;
   label: string;
   labelId: string;
 };
 
 function classifyRisk(value: number) {
+  const fallback = academicRiskOutput.terms[0];
+  if (!Number.isFinite(value)) {
+    return { id: fallback.id, label: fallback.label, degree: 0 };
+  }
   return academicRiskOutput.terms
     .map((term) => ({
       id: term.id,
@@ -40,10 +46,33 @@ function classifyRisk(value: number) {
     .sort((a, b) => b.degree - a.degree)[0];
 }
 
+export function validateInputs(inputs: AcademicRiskInputValues): string[] {
+  const errors: string[] = [];
+  for (const variable of academicRiskInputs) {
+    const value = inputs[variable.id as keyof AcademicRiskInputValues];
+    if (typeof value !== "number" || !Number.isFinite(value)) {
+      errors.push(`Input '${variable.id}' debe ser un numero finito (recibido: ${String(value)})`);
+      continue;
+    }
+    if (value < variable.min || value > variable.max) {
+      errors.push(`Input '${variable.id}' fuera de rango [${variable.min}, ${variable.max}] (recibido: ${value})`);
+    }
+  }
+  return errors;
+}
+
 export function inferAcademicRisk(
   inputs: AcademicRiskInputValues,
   resolution = 1,
 ): MamdaniResult {
+  const errors = validateInputs(inputs);
+  if (errors.length > 0) {
+    throw new Error(`inferAcademicRisk: inputs invalidos\n  - ${errors.join("\n  - ")}`);
+  }
+  if (!Number.isFinite(resolution) || resolution <= 0) {
+    throw new Error(`inferAcademicRisk: resolution debe ser un numero positivo (recibido: ${resolution})`);
+  }
+
   const fuzzification = Object.fromEntries(
     academicRiskSystem.inputs.map((variable) => [
       variable.id,
@@ -52,13 +81,29 @@ export function inferAcademicRisk(
   ) as Record<string, Record<string, number>>;
 
   const ruleActivations: RuleActivation[] = academicRiskSystem.rules.map((rule) => {
-    const antecedentDegrees = rule.antecedents.map((antecedent) => ({
-      variable: antecedent.variable,
-      term: antecedent.term,
-      degree: fuzzification[antecedent.variable][antecedent.term] ?? 0,
-    }));
+    const antecedentDegrees = rule.antecedents.map((antecedent) => {
+      const variableTerms = fuzzification[antecedent.variable];
+      if (!variableTerms) {
+        throw new Error(
+          `inferAcademicRisk: regla '${rule.id}' referencia variable desconocida '${antecedent.variable}'`,
+        );
+      }
+      const degree = variableTerms[antecedent.term];
+      if (degree === undefined) {
+        throw new Error(
+          `inferAcademicRisk: regla '${rule.id}' referencia termino desconocido '${antecedent.variable}.${antecedent.term}'`,
+        );
+      }
+      return {
+        variable: antecedent.variable,
+        term: antecedent.term,
+        degree,
+      };
+    });
 
-    const alpha = Math.min(...antecedentDegrees.map((item) => item.degree));
+    const alpha = antecedentDegrees.length
+      ? Math.min(...antecedentDegrees.map((item) => item.degree))
+      : 0;
     const consequent = academicRiskOutput.terms.find((term) => term.id === rule.consequent.term);
     const clippedArea = consequent
       ? Array.from({ length: Math.floor((academicRiskOutput.max - academicRiskOutput.min) / resolution) + 1 })
@@ -104,6 +149,7 @@ export function inferAcademicRisk(
     centroid: crisp.value,
     centroidNumerator: crisp.numerator,
     centroidDenominator: crisp.denominator,
+    covered: crisp.covered,
     label: label.label,
     labelId: label.id,
   };

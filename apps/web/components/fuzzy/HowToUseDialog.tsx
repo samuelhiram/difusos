@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { BlockMath, InlineMath } from "react-katex";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 type SectionKey =
@@ -78,6 +78,10 @@ export function HowToUseDialog({ trigger, onStartTour, open, onOpenChange }: How
     <Dialog open={open} onOpenChange={onOpenChange}>
       {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
       <DialogContent className="max-w-6xl p-0 sm:rounded-2xl">
+        <DialogTitle className="sr-only">Como usar este sistema difuso</DialogTitle>
+        <DialogDescription className="sr-only">
+          Guia visual y matematica del proceso Mamdani aplicado a riesgo academico.
+        </DialogDescription>
         <div className="flex h-[min(82vh,720px)] min-h-0 flex-col md:flex-row">
           <aside className="flex shrink-0 flex-col gap-2 border-b border-border/70 bg-muted/40 p-4 md:w-64 md:border-b-0 md:border-r">
             <div className="flex items-center gap-2 text-primary">

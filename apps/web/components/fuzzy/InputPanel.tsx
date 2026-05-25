@@ -73,7 +73,12 @@ export function InputPanel({ values, onValueChange, fuzzification }: InputPanelP
                     min={variable.min}
                     max={variable.max}
                     value={value}
-                    onChange={(event) => onValueChange(key, Number(event.target.value))}
+                    onChange={(event) => {
+                      const raw = Number(event.target.value);
+                      if (!Number.isFinite(raw)) return;
+                      const clamped = Math.min(variable.max, Math.max(variable.min, raw));
+                      onValueChange(key, clamped);
+                    }}
                     className="h-7 w-12 rounded-md border bg-background px-1.5 text-right text-[12px] outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>

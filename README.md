@@ -4,24 +4,31 @@ Sistema difuso clasico Mamdani (sin ML) para estimar riesgo academico de 0 a 100
 
 App interactiva en Next.js con descargas integradas: **presentacion PPTX editable**, **reporte LaTeX en PDF** y **resumen ejecutivo del caso actual**.
 
-## Requisitos
+## Pasos minimos para levantar el proyecto
 
-Una sola dependencia global: **pnpm**.
+Prerequisitos: **Node.js 18+** y **pnpm**. Si no tienes pnpm:
 
 ```powershell
 npm install -g pnpm
 ```
 
-(Node.js 18+. Si vas a generar el PDF del reporte LaTeX, el bootstrap descarga Tectonic automaticamente.)
-
-## Arrancar en dos comandos
+Luego, desde la raiz del repo:
 
 ```powershell
-pnpm bootstrap   # primera vez: instala deps, baja Tectonic, compila PDF y PPTX
-pnpm start       # arranca http://localhost:3000
+# 1. Clonar el repo y entrar a la carpeta
+git clone <url-del-repo>
+cd difusos
+
+# 2. Setup completo (instala deps, baja Tectonic, compila PDF y PPTX)
+pnpm bootstrap
+
+# 3. Arrancar el dev server
+pnpm start
 ```
 
-`pnpm bootstrap` es idempotente: si lo corres de nuevo, solo rehace lo que cambio. Primera vez tarda ~2 min (descarga ~500 MB de paquetes LaTeX, queda cacheado).
+Abrir [http://localhost:3000](http://localhost:3000) en el navegador.
+
+> `pnpm bootstrap` es idempotente: si lo corres de nuevo, solo rehace lo que cambio. Primera vez tarda ~2 min (descarga ~500 MB de paquetes LaTeX, queda cacheado). Si no necesitas el PDF del reporte LaTeX, puedes omitir Tectonic; el bootstrap lo descarga automaticamente solo si vas a compilar.
 
 ## Comandos
 

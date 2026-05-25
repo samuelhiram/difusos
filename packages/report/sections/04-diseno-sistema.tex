@@ -48,7 +48,7 @@ La tabla~\ref{tab:parametros} se genera automáticamente desde el motor TypeScri
 
 \subsection{Base de reglas IF-THEN}
 
-La tabla~\ref{tab:reglas} contiene las diez reglas que conforman la base de inferencia. Cada regla incluye su justificación lingüística para hacer evidente la racionalidad detrás del diseño.
+La tabla~\ref{tab:reglas} contiene las treinta reglas que conforman la base de inferencia. La base se construyó iterativamente con un test de cobertura exhaustivo (grid $[25,45,65,85]^5 = 1024$ casos) para garantizar que toda combinación realista de entradas dispare al menos una regla con $\alpha>0$. Cada regla incluye su justificación lingüística para hacer evidente la racionalidad detrás del diseño.
 
 \begin{longtable}{P{0.08\linewidth}P{0.50\linewidth}P{0.12\linewidth}P{0.22\linewidth}}
 \caption{Base de reglas IF-THEN del sistema. Las reglas con consecuente crítico y alto modelan los escenarios de mayor alerta académica.\label{tab:reglas}}\\

@@ -44,7 +44,18 @@ function Ensure-Tectonic {
   Write-Host "    -> $($release.tag_name): $($asset.name) ($([math]::Round($asset.size / 1MB, 1)) MB)" -ForegroundColor DarkGray
 
   $zipPath = Join-Path $env:TEMP $asset.name
-  Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath -UseBasicParsing
+  if (Test-Path $zipPath) { Remove-Item $zipPath -Force -ErrorAction SilentlyContinue }
+  try {
+    Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath -UseBasicParsing
+  } catch {
+    if (Test-Path $zipPath) { Remove-Item $zipPath -Force -ErrorAction SilentlyContinue }
+    throw "Descarga de Tectonic fallo: $($_.Exception.Message)"
+  }
+  $zipSize = (Get-Item $zipPath).Length
+  if ($zipSize -lt 1MB) {
+    Remove-Item $zipPath -Force -ErrorAction SilentlyContinue
+    throw "ZIP descargado parece corrupto (solo $zipSize bytes). Reintenta el bootstrap."
+  }
 
   $extractDir = Join-Path $env:TEMP "tectonic-extract"
   if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
