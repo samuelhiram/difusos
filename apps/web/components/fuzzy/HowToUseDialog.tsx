@@ -389,7 +389,7 @@ function FuzzificationSection() {
       <ul className="space-y-1.5">
         <Bullet>Un mismo valor puede pertenecer a varios terminos con distinto grado.</Bullet>
         <Bullet>Los grados estan acotados en [0, 1]; suelen NO sumar 1.</Bullet>
-        <Bullet>La pestana &quot;Funciones&quot; muestra las curvas reales del sistema.</Bullet>
+        <Bullet>La pestaña &quot;Funciones&quot; muestra las curvas reales del sistema.</Bullet>
       </ul>
     </>
   );
@@ -421,7 +421,7 @@ function RulesSection() {
       <ul className="space-y-1.5">
         <Bullet>Si alpha = 0, la regla no aporta nada al resultado.</Bullet>
         <Bullet>Si alpha = 1, la regla se aplica con maxima intensidad.</Bullet>
-        <Bullet>Puedes inspeccionar las reglas activas en la pestana &quot;Reglas&quot; o en la &quot;Trazabilidad&quot;.</Bullet>
+        <Bullet>Puedes inspeccionar las reglas activas en la pestaña &quot;Reglas&quot; o en la &quot;Trazabilidad&quot;.</Bullet>
       </ul>
     </>
   );
@@ -434,7 +434,7 @@ function InferenceSection() {
         Inferencia: cuanto activa cada regla
       </Heading>
       <p className="text-sm leading-relaxed text-muted-foreground">
-        Por cada regla calculamos su intensidad <InlineMath math="\alpha" />. La pestana &quot;Reglas&quot; lista todas
+        Por cada regla calculamos su intensidad <InlineMath math="\alpha" />. La pestaña &quot;Reglas&quot; lista todas
         las activaciones ordenadas y el panel &quot;Resultado&quot; resume cuantas estan vivas (<InlineMath math="\alpha>0" />).
       </p>
       <div className="rounded-lg border bg-background p-3">
@@ -597,11 +597,11 @@ function FaqSection() {
     ],
     [
       "Donde estan las definiciones de cada termino?",
-      "En la pestana 'Funciones' del panel derecho. Veras las curvas reales y la pertenencia de la x actual.",
+      "En la pestaña 'Funciones' del panel derecho. Veras las curvas reales y la pertenencia de la x actual.",
     ],
     [
       "Puedo ver el desarrollo matematico paso a paso?",
-      "Si. En el panel 'Sistema Difuso Mamdani' pulsa 'Ver trazado completo' o abre la pestana 'Formulas'.",
+      "Si. En el panel 'Sistema Difuso Mamdani' pulsa 'Ver trazado completo' o abre la pestaña 'Formulas'.",
     ],
     [
       "Reinicia los valores el sistema?",
@@ -785,7 +785,7 @@ function TheorySection() {
         Se elige <strong className="text-foreground">min</strong> por tres razones concretas al problema academico:
         (1) <em>conservadurismo deseado</em> - si un solo factor del estudiante esta bien (alpha alta en un antecedente)
         pero otro esta muy mal (alpha baja en otro), debemos reportar el factor critico, no su promedio; (2) es la
-        formulacion original de Mamdani; (3) genera salidas robustas ante pequenas variaciones en los datos de entrada,
+        formulacion original de Mamdani; (3) genera salidas robustas ante pequeñas variaciones en los datos de entrada,
         propiedad estudiada en <Citation>Klir &amp; Yuan (1995)</Citation>.
       </p>
 
@@ -944,7 +944,7 @@ const stackItems: { group: string; items: StackItem[] }[] = [
         why: (
           <>
             Permite servir el tablero como sitio estatico (idoneo para entregas academicas y demos sin servidor),
-            ofrece routing por archivos y bundling optimizado (Turbopack). Frente a Vite puro, anade convenciones de
+            ofrece routing por archivos y bundling optimizado (Turbopack). Frente a Vite puro, añade convenciones de
             estructura y deploy en un solo click.
           </>
         ),
@@ -962,7 +962,7 @@ const stackItems: { group: string; items: StackItem[] }[] = [
       },
       {
         name: "Tailwind CSS",
-        role: "Sistema de utilidades CSS con tokens de diseno.",
+        role: "Sistema de utilidades CSS con tokens de diseño.",
         why: (
           <>
             Permite construir un sistema visual normalizado (colores, espaciado, sombras) con consistencia automatica;

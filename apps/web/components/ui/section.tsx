@@ -31,21 +31,21 @@ export const Section = React.forwardRef<HTMLElement, SectionProps>(
     >
       <header
         className={cn(
-          "flex items-start justify-between gap-3 border-b border-border/60 px-4",
+          "flex items-center justify-between gap-3 border-b border-border/60 px-4",
           dense ? "py-2.5" : "py-3",
         )}
       >
-        <div className="flex min-w-0 items-start gap-3">
+        <div className="flex min-w-0 items-center gap-2.5">
           {step !== undefined ? (
             <span
               aria-hidden
-              className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold leading-none text-primary-foreground shadow-sm"
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold leading-none text-primary-foreground shadow-sm"
             >
               {step}
             </span>
           ) : null}
           {icon ? (
-            <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
               {icon}
             </span>
           ) : null}

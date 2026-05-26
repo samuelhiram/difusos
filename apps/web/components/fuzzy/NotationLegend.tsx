@@ -38,7 +38,7 @@ function buildEntries(): Entry[] {
     {
       symbol: "\\mu_{A}(x):X\\to[0,1]",
       meaning: <span>Funcion de pertenencia del termino A</span>,
-      ui: <span>Curvas en la pestana <em>Funciones</em></span>,
+      ui: <span>Curvas en la pestaña <em>Funciones</em></span>,
     },
     {
       symbol: "\\mu_{term}(x_i)",

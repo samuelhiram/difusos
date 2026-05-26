@@ -17,15 +17,15 @@ export function RuleGraph({ result }: RuleGraphProps) {
 
   const nodes = useMemo<Node[]>(
     () => [
-      { id: "inputs", position: { x: 0, y: 95 }, data: { label: "X = (x1..x5)" }, className: nodeClass },
-      { id: "fuzzification", position: { x: 210, y: 95 }, data: { label: "Fuzzificacion mu_A(x)" }, className: nodeClass },
-      { id: "degrees", position: { x: 420, y: 95 }, data: { label: "Grados mu in [0,1]" }, className: nodeClass },
-      { id: "rules", position: { x: 660, y: 30 }, data: { label: `Reglas R_r activas: ${activeRules.length}` }, className: nodeClass },
-      { id: "alpha", position: { x: 660, y: 160 }, data: { label: "alpha_r = min(mu_Ai)" }, className: nodeClass },
-      { id: "clipping", position: { x: 920, y: 30 }, data: { label: "mu'_B = min(alpha, mu_B)" }, className: nodeClass },
-      { id: "aggregation", position: { x: 920, y: 160 }, data: { label: "mu_B = max_r mu'_Br" }, className: nodeClass },
-      { id: "centroid", position: { x: 1160, y: 95 }, data: { label: `y* = ${result.centroid.toFixed(2)}` }, className: nodeClass },
-      { id: "result", position: { x: 1390, y: 95 }, data: { label: `L = ${result.label}` }, className: `${nodeClass} border-primary bg-teal-50 font-semibold` },
+      { id: "inputs", position: { x: 0, y: 95 }, data: { label: "1. Datos del alumno" }, className: nodeClass },
+      { id: "fuzzification", position: { x: 210, y: 95 }, data: { label: "2. Convertir a grados" }, className: nodeClass },
+      { id: "degrees", position: { x: 420, y: 95 }, data: { label: "3. Que tan bajo/alto" }, className: nodeClass },
+      { id: "rules", position: { x: 660, y: 30 }, data: { label: `4. Reglas activas: ${activeRules.length}` }, className: nodeClass },
+      { id: "alpha", position: { x: 660, y: 160 }, data: { label: "5. Fuerza de cada regla" }, className: nodeClass },
+      { id: "clipping", position: { x: 920, y: 30 }, data: { label: "6. Recortar salidas" }, className: nodeClass },
+      { id: "aggregation", position: { x: 920, y: 160 }, data: { label: "7. Unir evidencias" }, className: nodeClass },
+      { id: "centroid", position: { x: 1160, y: 95 }, data: { label: `8. Numero final: ${result.centroid.toFixed(2)}` }, className: nodeClass },
+      { id: "result", position: { x: 1390, y: 95 }, data: { label: `9. Riesgo ${result.label}` }, className: `${nodeClass} border-primary bg-teal-50 font-semibold` },
     ],
     [activeRules.length, result.centroid, result.label],
   );
@@ -56,11 +56,11 @@ export function RuleGraph({ result }: RuleGraphProps) {
   return (
     <Section
       data-tour="rule-graph"
-      title="Flujo visual del proceso"
-      description="Cada nodo es una etapa de la inferencia Mamdani. Las aristas verdes son inferencia en vivo."
+      title="Mapa del proceso"
+      description="Sigue el camino desde datos del alumno hasta etiqueta final."
       icon={<Workflow className="h-4 w-4" />}
     >
-      <div className="h-[360px] w-full rounded-lg border bg-white">
+      <div className="h-[340px] w-full rounded-lg border bg-white">
         <ReactFlow
           nodes={nodes}
           edges={edges}

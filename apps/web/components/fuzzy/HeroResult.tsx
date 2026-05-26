@@ -39,16 +39,43 @@ const riskMeta: Record<string, { bg: string; ring: string; chip: string; aura: s
   },
 };
 
+const riskCopy: Record<string, { headline: string; action: string }> = {
+  low: {
+    headline: "Caso estable. No hay alerta fuerte.",
+    action: "Mantener seguimiento normal.",
+  },
+  medium: {
+    headline: "Caso intermedio. Hay señales mixtas.",
+    action: "Revisar tareas, asistencia y examenes antes del siguiente corte.",
+  },
+  high: {
+    headline: "Alerta alta. Varias reglas empujan el riesgo.",
+    action: "Aplicar apoyo temprano y plan de recuperacion.",
+  },
+  critical: {
+    headline: "Alerta severa. Atencion inmediata.",
+    action: "Priorizar intervencion docente/tutor y seguimiento semanal.",
+  },
+};
+
+const inputLabels: Record<string, string> = {
+  average: "promedio",
+  attendance: "asistencia",
+  assignments: "entregas",
+  participation: "participacion",
+  exams: "examenes",
+};
+
 function Pill({ icon: Icon, label, value, hint }: { icon: typeof Activity; label: string; value: React.ReactNode; hint?: string }) {
   return (
-    <div className="flex min-w-[120px] items-center gap-2.5 rounded-lg border bg-background/80 px-3 py-2 backdrop-blur-sm">
+    <div className="flex h-full items-center gap-2.5 rounded-lg border bg-background/80 px-3 py-2 backdrop-blur-sm">
       <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
         <Icon className="h-3.5 w-3.5" />
       </span>
-      <div className="min-w-0">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
-        <div className="text-sm font-semibold leading-tight tabular-nums text-foreground">{value}</div>
-        {hint ? <div className="text-[10px] text-muted-foreground">{hint}</div> : null}
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
+        <div className="truncate text-sm font-semibold leading-tight tabular-nums text-foreground">{value}</div>
+        {hint ? <div className="truncate text-[10px] text-muted-foreground">{hint}</div> : null}
       </div>
     </div>
   );
@@ -61,6 +88,12 @@ export function HeroResult({ result }: HeroResultProps) {
   const safeCentroid = Number.isFinite(result.centroid) ? result.centroid : 0;
   const pct = Math.min(100, Math.max(0, safeCentroid));
   const markerPos = `calc(${pct}% - 6px)`;
+  const copy = riskCopy[result.labelId] ?? riskCopy.medium;
+  const weakestInputs = Object.entries(result.inputs)
+    .sort(([, a], [, b]) => a - b)
+    .slice(0, 2)
+    .map(([key, value]) => `${inputLabels[key] ?? key} ${value.toFixed(0)}`)
+    .join(", ");
 
   return (
     <section
@@ -87,7 +120,7 @@ export function HeroResult({ result }: HeroResultProps) {
             </span>
           </div>
 
-          <div className="flex flex-wrap items-end gap-4">
+          <div className="grid items-end gap-4 lg:grid-cols-[auto_minmax(0,1fr)]">
             <div className="leading-none">
               <div className="flex items-baseline gap-1.5">
                 <span className="text-xl font-semibold text-muted-foreground">
@@ -105,33 +138,50 @@ export function HeroResult({ result }: HeroResultProps) {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <Pill
                 icon={Activity}
-                label="Reglas activas"
+                label="Reglas que influyen"
                 value={`${activeRules.length} / ${result.ruleActivations.length}`}
-                hint="con alpha > 0"
+                hint="detectaron evidencia"
               />
               <Pill
                 icon={Sigma}
-                label="Numerador"
+                label="Peso del riesgo"
                 value={result.centroidNumerator.toFixed(2)}
-                hint="masa ponderada por y"
+                hint="suma ponderada"
               />
               <Pill
                 icon={GitMerge}
-                label="Denominador"
+                label="Evidencia total"
                 value={result.centroidDenominator.toFixed(2)}
-                hint="area total mu_B(y)"
+                hint="area acumulada"
               />
               {dominantRule ? (
                 <Pill
                   icon={Sparkles}
-                  label="Regla dominante"
+                  label="Regla que mas pesa"
                   value={dominantRule.rule.id}
-                  hint={`empuja a ${dominantRule.rule.consequent.term} con alpha=${dominantRule.alpha.toFixed(2)}`}
+                  hint={`alpha=${dominantRule.alpha.toFixed(2)} hacia ${dominantRule.rule.consequent.term}`}
                 />
-              ) : null}
+              ) : (
+                <div className="hidden h-full rounded-lg border border-dashed border-border/60 bg-background/40 sm:block" aria-hidden />
+              )}
+            </div>
+          </div>
+
+          <div className="grid gap-2 text-sm md:grid-cols-3">
+            <div className="rounded-lg border bg-background/85 p-3">
+              <div className="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">Lectura rapida</div>
+              <div className="mt-1 font-medium text-foreground">{copy.headline}</div>
+            </div>
+            <div className="rounded-lg border bg-background/85 p-3">
+              <div className="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">Primero revisar</div>
+              <div className="mt-1 font-medium text-foreground">{weakestInputs}</div>
+            </div>
+            <div className="rounded-lg border bg-background/85 p-3">
+              <div className="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">Siguiente accion</div>
+              <div className="mt-1 font-medium text-foreground">{copy.action}</div>
             </div>
           </div>
 
@@ -147,7 +197,13 @@ export function HeroResult({ result }: HeroResultProps) {
 
           <div className="space-y-1.5">
             <div className="relative h-3 overflow-hidden rounded-full border border-border/70 bg-muted">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-amber-400 via-60% to-red-600" />
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-amber-400 to-red-600" />
+              <div className="pointer-events-none absolute inset-y-0 left-0 right-0 flex" aria-hidden>
+                <span className="h-full w-1/4 border-r border-background/50" />
+                <span className="h-full w-1/4 border-r border-background/50" />
+                <span className="h-full w-1/4 border-r border-background/50" />
+                <span className="h-full w-1/4" />
+              </div>
               <div className="absolute inset-y-0 left-0 bg-foreground/5 backdrop-blur-[1px]" style={{ width: `${pct}%` }} aria-hidden />
               <div
                 className="absolute top-1/2 h-5 w-3 -translate-y-1/2 rounded-sm border-2 border-background bg-foreground shadow-md transition-[left] duration-500"
@@ -155,7 +211,7 @@ export function HeroResult({ result }: HeroResultProps) {
                 aria-hidden
               />
             </div>
-            <div className="flex justify-between text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            <div className="grid grid-cols-4 text-center text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
               <span>bajo · 0-25</span>
               <span>medio · 25-50</span>
               <span>alto · 50-75</span>

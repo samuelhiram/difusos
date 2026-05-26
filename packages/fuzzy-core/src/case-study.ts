@@ -37,7 +37,7 @@ export const sensitivityCases: CaseStudy[] = [
   {
     id: "estudiante-solido",
     label: "Estudiante solido",
-    description: "Alto desempeno consistente en todas las variables.",
+    description: "Alto desempeño consistente en todas las variables.",
     inputs: { average: 88, attendance: 95, assignments: 92, participation: 84, exams: 90 },
   },
 ];

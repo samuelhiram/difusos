@@ -27,7 +27,7 @@ const levelCopy: Record<
   },
   medium: {
     title: "Riesgo medio",
-    meaning: "Hay senales mixtas. El desempeno no es critico, pero requiere observacion.",
+    meaning: "Hay señales mixtas. El desempeño no es critico, pero requiere observacion.",
     action: "Revisar tareas, examenes recientes y asistencia antes del siguiente corte.",
     icon: Info,
     tone: "border-amber-300/70 bg-amber-50 text-amber-800",
@@ -86,8 +86,8 @@ export function InterpretationPanel({ result }: InterpretationPanelProps) {
     <Section
       data-tour="interpretation-panel"
       step={3}
-      title="Interpretacion academica"
-      description="Como leer el resultado y que hacer despues."
+      title="Lectura del caso"
+      description="Que significa el riesgo, por que salio y que revisar primero."
       icon={<Icon className="h-4 w-4" />}
       tone="accent"
     >
@@ -102,22 +102,10 @@ export function InterpretationPanel({ result }: InterpretationPanelProps) {
         </div>
 
         <div className="divide-y divide-border/60 rounded-lg border bg-background px-2.5">
-          <FactRow term="Lectura formal">
-            <span className="text-muted-foreground">
-              y* es el centroide de mu_B(y), centro de masa de la curva agregada. La etiqueta proviene del conjunto de
-              salida con mayor pertenencia en y*.
-            </span>
-          </FactRow>
-          <FactRow term="Contexto">
-            mide nivel de alerta de reprobacion, no probabilidad estadistica.
-          </FactRow>
-          <FactRow term="Problema">
-            decisiones academicas con datos imprecisos, sin cortar todo en aprobado/reprobado.
-          </FactRow>
           <FactRow term="Factores bajos">{factors.join(", ")}.</FactRow>
           <FactRow term="Reglas dominantes">{mainRules.length ? mainRules.join(", ") : "sin reglas activas"}.</FactRow>
           {dominant ? (
-            <FactRow term="Por que esta etiqueta">
+            <FactRow term="Por que salio asi">
               <span>
                 La regla <strong>{dominant.rule.id}</strong> aporta el mayor alpha (
                 <span className="tabular-nums">{dominant.alpha.toFixed(2)}</span>) y empuja el centroide hacia el
@@ -127,6 +115,15 @@ export function InterpretationPanel({ result }: InterpretationPanelProps) {
             </FactRow>
           ) : null}
           <FactRow term="Accion sugerida">{copy.action}</FactRow>
+          <FactRow term="Lectura formal">
+            <span className="text-muted-foreground">
+              y* es el centroide de mu_B(y), centro de masa de la curva agregada. La etiqueta proviene del conjunto de
+              salida con mayor pertenencia en y*.
+            </span>
+          </FactRow>
+          <FactRow term="Cuidado">
+            mide nivel de alerta, no probabilidad estadistica ni sentencia final.
+          </FactRow>
         </div>
       </div>
     </Section>

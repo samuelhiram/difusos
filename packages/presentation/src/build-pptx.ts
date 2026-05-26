@@ -89,6 +89,35 @@ function describeInputs(inputs: AcademicRiskInputValues) {
   ];
 }
 
+function termLabel(variableId: string, termId: string) {
+  const variable =
+    academicRiskInputs.find((item) => item.id === variableId) ??
+    (academicRiskOutput.id === variableId ? academicRiskOutput : undefined);
+  return variable?.terms.find((term) => term.id === termId)?.label ?? termId;
+}
+
+function degreeText(variableId: string, degrees: Record<string, number>) {
+  return Object.entries(degrees)
+    .filter(([, value]) => value > 0.001)
+    .sort(([, a], [, b]) => b - a)
+    .map(([term, value]) => `${termLabel(variableId, term)} ${value.toFixed(2)}`)
+    .join(", ");
+}
+
+function riskAction(labelId: string) {
+  if (labelId === "critical") return "Intervencion inmediata: revisar asistencia, entregas y examenes esta semana.";
+  if (labelId === "high") return "Apoyo temprano: plan de entregas, asesorias y seguimiento semanal.";
+  if (labelId === "medium") return "Monitoreo: revisar variables debiles antes del siguiente corte.";
+  return "Seguimiento normal: mantener habitos y revisar al cierre del periodo.";
+}
+
+function riskSummary(labelId: string) {
+  if (labelId === "critical") return "Alerta severa. Varias evidencias empujan al riesgo maximo.";
+  if (labelId === "high") return "Alerta alta. El caso necesita atencion antes de empeorar.";
+  if (labelId === "medium") return "Caso intermedio. Hay señales mixtas; conviene vigilar.";
+  return "Caso estable. No hay alerta fuerte con las reglas actuales.";
+}
+
 export async function buildPresentation(options: BuildPresentationOptions = {}) {
   const inputs = options.inputs ?? defaultCaseStudy.inputs;
   const result = options.result ?? inferAcademicRisk(inputs, 1);
@@ -406,7 +435,7 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
   pageNum += 1;
   {
     const slide = addCoverSlide();
-    slide.addText("Sistema Difuso Mamdani", {
+    slide.addText("LOGICA DIFUSA EXPLICABLE", {
       x: 0.85,
       y: 1.4,
       w: 11.6,
@@ -416,7 +445,7 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       color: C.teal,
       charSpacing: 4,
     });
-    slide.addText("Evaluacion de Riesgo Academico en Estudiantes", {
+    slide.addText("Riesgo academico explicado paso a paso", {
       x: 0.85,
       y: 2.05,
       w: 11.6,
@@ -427,7 +456,7 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       fit: "shrink",
     });
     slide.addText(
-      "Instituto Tecnologico de Tijuana  |  Maestria En Ciencias Computacionales  |  Sistemas Difusos",
+      "Sistema Mamdani para convertir señales academicas en una alerta entendible",
       {
         x: 0.85,
         y: 3.5,
@@ -443,8 +472,8 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       4.25,
       5.65,
       1.85,
-      "Objetivo",
-      "Estimar el riesgo de reprobacion con logica difusa clasica: variables linguisticas, reglas IF-THEN, inferencia Mamdani y centroide. Todo el resultado es determinista y auditable.",
+      "Que problema resuelve",
+      "Un estudiante no es solo aprobado o reprobado. El sistema mira promedio, asistencia, entregas, participacion y examenes para estimar un nivel de alerta de 0 a 100.",
       C.teal,
     );
     addCard(
@@ -453,8 +482,8 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       4.25,
       5.65,
       1.85,
-      "Restriccion clave",
-      "Sin machine learning, redes neuronales, regresion o estadistica predictiva. Solo conjuntos difusos, min, max y centroide.",
+      "Que lo hace claro",
+      "No usa caja negra. Cada numero sale de curvas visibles, reglas IF-THEN y un centroide. Si alguien pregunta 'por que?', se puede seguir todo el camino.",
       C.red,
     );
     slide.addText(`${author}    -    Profesor: Prof. Oscar Castillo, Ph.D., D.Sc.    -    ${date}`, {
@@ -466,25 +495,21 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       color: C.muted,
     });
     slide.addNotes(
-      "Slide de portada. Mencionar que el sistema no usa ML y que cada paso del razonamiento queda visible. Presentar profesor y materia.",
+      "Abrir con la idea simple: no se predice magicamente; se ordenan evidencias academicas y se explica la alerta.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Agenda", "GUIA DE LA PRESENTACION");
+    addHeader(slide, "Ruta para entender el sistema", "GUIA SIMPLE");
     const agendaItems = [
-      "1.  Problema y contexto: por que evitar umbrales rigidos",
-      "2.  Modelo Mamdani: fuzzificacion, inferencia, agregacion y centroide",
-      "3.  Comparativa formal: Mamdani vs Sugeno vs Tsukamoto",
-      "4.  t-normas, t-conormas y metodos de defuzzificacion",
-      "5.  Variables linguisticas, funciones de pertenencia y reglas IF-THEN",
-      "6.  Caso de prueba en vivo y resultado crisp",
-      "7.  Analisis de sensibilidad: tres escenarios contrastantes",
-      "8.  Comparacion contra reglas rigidas",
-      "9.  Propiedades formales del sistema y garantias matematicas",
-      "10. Limitaciones, conclusiones y trabajo futuro",
+      "1.  Que problema academico estamos resolviendo",
+      "2.  Que significan las barras, x_i, T(x_i) y los valores mu",
+      "3.  Como Mamdani transforma datos en reglas activadas",
+      "4.  Como se obtiene el numero final y la etiqueta de riesgo",
+      "5.  Como leer el caso de prueba sin perderse en formulas",
+      "6.  Que ventajas, limites y evidencia quedan para defenderlo",
     ];
     addBullets(slide, agendaItems, 0.95, 1.7, 11.5, 4.7, 17);
     addCard(
@@ -494,25 +519,25 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       11.5,
       0.75,
       "Idea central",
-      "El sistema convierte evidencias academicas imprecisas en un riesgo explicable de 0 a 100. Cada paso se puede auditar.",
+      "Numeros entran. Se vuelven grados como 'bajo 0.65'. Las reglas se activan. El centroide entrega el riesgo final.",
       C.teal,
     );
     slide.addNotes(
-      "Recorrer la agenda en menos de 30 segundos. Subrayar que cada bloque resuelve una duda especifica: por que difuso, como funciona, como se aplica y como se valida.",
+      "Presentar como historia. Primero el problema, luego la lectura de barras, despues el motor y finalmente el resultado.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Problema y contexto", "MOTIVACION");
+    addHeader(slide, "El problema real", "POR QUE NO BASTA UN IF");
     addBullets(
       slide,
       [
-        "La evaluacion academica contiene incertidumbre: promedio, asistencia y entregas no son estados binarios.",
-        "Los umbrales duros generan saltos artificiales: 59 critico vs 60 regular, cuando ambos casos son muy similares.",
-        "Necesitamos un sistema gradual, explicable y reproducible que no dependa de datos historicos masivos.",
-        "El sistema convierte cinco evidencias academicas en un riesgo de 0 a 100 acompanado de etiqueta linguistica.",
+        "El riesgo academico aparece por mezcla de señales: promedio bajo, ausencias, tareas incompletas, poca participacion y examenes flojos.",
+        "Un corte rigido crea decisiones raras: 59 y 60 pueden estar casi igual, pero un if los separa como mundos distintos.",
+        "La logica difusa permite zonas grises: un valor puede ser 'algo bajo' y 'bastante regular' al mismo tiempo.",
+        "El resultado no es una sentencia. Es una alerta explicable para decidir seguimiento.",
       ],
       0.95,
       1.65,
@@ -526,7 +551,7 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       5.55,
       1.7,
       "Pregunta guia",
-      "Como estimar riesgo academico de forma gradual, transparente y defendible sin entrenar modelos ni recolectar datos historicos?",
+      "Como convertir datos academicos mezclados en una alerta clara sin usar una caja negra?",
       C.gold,
     );
     addCard(
@@ -535,29 +560,29 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       4.85,
       5.6,
       1.7,
-      "Promesa de la solucion",
-      "Resultado 0-100 con etiqueta linguistica + lista de reglas activadas + curva de agregacion + centroide. Todo trazable y reproducible.",
+      "Respuesta del sistema",
+      "Usar etiquetas humanas, grados de pertenencia, reglas visibles y un numero final en escala 0-100.",
       C.teal,
     );
     slide.addNotes(
-      "Insistir en el contraste: umbrales rigidos vs transicion gradual. Mencionar que la auditoria de cada regla es clave en un contexto academico real.",
+      "Contrastar if rigido contra lectura gradual. Un docente suele pensar en bajo, regular, alto; la logica difusa formaliza eso.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Arquitectura del proyecto", "VISTA GENERAL");
+    addHeader(slide, "Piezas del sistema", "QUE HACE CADA PARTE");
     const rows: TableRow[] = [
       [
-        tcHead("Capa", C.teal, C.white),
-        tcHead("Elemento", C.teal, C.white),
-        tcHead("Uso", C.teal, C.white),
+        tcHead("Pieza", C.teal, C.white),
+        tcHead("Que hace", C.teal, C.white),
+        tcHead("Por que ayuda a explicar", C.teal, C.white),
       ],
-      [tc("apps/web"), tc("Next.js + React Flow + Recharts + KaTeX"), tc("Interfaz visual, grafo de reglas, formulas, descargas")],
-      [tc("packages/fuzzy-core"), tc("TypeScript puro"), tc("Motor Mamdani determinista")],
-      [tc("packages/report"), tc("LaTeX + PGFPlots + BibLaTeX"), tc("Documento academico con figuras vectoriales")],
-      [tc("packages/presentation"), tc("PptxGenJS"), tc("Presentacion editable generada al vuelo")],
+      [tc("Motor difuso"), tc("Calcula pertenencias, reglas, agregacion y centroide"), tc("Es la fuente de verdad: todo sale de las mismas reglas")],
+      [tc("Interfaz web"), tc("Permite mover barras y ver el resultado en vivo"), tc("Muestra el camino completo, no solo el numero final")],
+      [tc("Reporte PDF"), tc("Documenta teoria, parametros, tablas y resultados"), tc("Sirve como evidencia academica formal")],
+      [tc("Presentacion PPTX"), tc("Resume el sistema en slides editables"), tc("Convierte la explicacion tecnica en historia visual")],
     ];
     slide.addTable(rows, {
       x: 0.95,
@@ -578,49 +603,49 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       4.75,
       11.45,
       1.65,
-      "Sincronia",
-      "El motor TypeScript es la unica fuente de verdad. La interfaz, el reporte LaTeX y la presentacion consumen las mismas reglas, variables y caso de prueba. Cambiar el motor cambia todos los entregables.",
+      "Clave para defenderlo",
+      "No hay tres versiones del sistema. Motor, web, reporte y PPT usan la misma definicion de variables, funciones y reglas. Eso evita contradicciones.",
       C.teal,
     );
     slide.addNotes(
-      "Explicar que el monorepo permite que cualquier cambio en la base de reglas se refleje automaticamente en los tres entregables. No hay duplicacion de logica.",
+      "Explicar que si cambia una regla en el motor, cambian los resultados que ve la web y la presentacion. Una sola fuente de verdad.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Modelo difuso Mamdani", "PROCESO MATEMATICO");
+    addHeader(slide, "Mamdani en cinco pasos", "DEL DATO A LA ALERTA");
     const steps = [
-      ["1. Fuzzificacion", "Cada entrada se transforma en grados mu_A(x) usando funciones triangulares y trapezoidales."],
-      ["2. Operador AND", "alpha_r = min(mu_A1(x1), mu_A2(x2), ..., mu_An(xn)) por cada regla activada."],
-      ["3. Implicacion", "mu_B'_r(y) = min(alpha_r, mu_B_r(y)) recorta el conjunto consecuente."],
-      ["4. Agregacion", "mu_B(y) = max_r mu_B'_r(y) une todas las salidas recortadas."],
-      ["5. Defuzzificacion", "y* = integral(y * mu_B(y)) dy / integral(mu_B(y)) dy mediante centroide."],
+      ["1. Datos", "Cada barra da un numero real: promedio, asistencia, entregas, participacion y examenes."],
+      ["2. Grados", "Cada numero se traduce a etiquetas con fuerza: bajo 0.13, regular 0.65, alto 0.00."],
+      ["3. Reglas", "Las reglas IF-THEN se prenden segun esos grados. La fuerza se llama alpha."],
+      ["4. Union de evidencias", "Todas las reglas que apuntan al riesgo se juntan para formar una curva de salida."],
+      ["5. Numero final", "El centroide busca el punto de equilibrio de esa curva y entrega el riesgo 0-100."],
     ];
     steps.forEach(([title, body], index) => {
       const accent = index % 2 === 0 ? C.teal : C.gold;
       addCard(slide, 0.95, 1.55 + index * 1.05, 11.45, 0.92, title, body, accent);
     });
     slide.addNotes(
-      "Recorrer cada paso explicando que ninguno requiere entrenamiento: son operaciones aritmeticas y de minimo/maximo sobre conjuntos definidos manualmente.",
+      "Usar analogia: datos -> etiquetas con intensidad -> reglas -> area -> punto de equilibrio. Evitar arrancar con formulas.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Comparativa de arquitecturas difusas", "JUSTIFICACION DE MAMDANI");
+    addHeader(slide, "Por que Mamdani", "ELECCION DEL MODELO");
     const rows: TableRow[] = [
       [
         tcHead("Modelo", C.teal, C.white),
-        tcHead("Consecuente", C.teal, C.white),
-        tcHead("Defuzzificacion", C.teal, C.white),
-        tcHead("Uso tipico", C.teal, C.white),
+        tcHead("Como entrega salida", C.teal, C.white),
+        tcHead("Que tan facil se explica", C.teal, C.white),
+        tcHead("Encaja aqui?", C.teal, C.white),
       ],
-      [tc("Mamdani (1975)"), tc("Conjunto difuso B_r"), tc("Centroide / MoM"), tc("Sistemas explicables a humanos")],
-      [tc("Sugeno (1985)"), tc("Funcion crisp f_r(x)"), tc("Promedio ponderado por alpha"), tc("Control numerico, modelado adaptativo")],
-      [tc("Tsukamoto"), tc("Conjunto monotono"), tc("Promedio ponderado de y_r"), tc("Salida crisp por regla")],
+      [tc("Mamdani"), tc("Curva difusa de salida + centroide"), tc("Muy alta: se ve la curva y cada regla"), tc("Si")],
+      [tc("Sugeno"), tc("Formula numerica por regla"), tc("Media: bueno para control, menos visual"), tc("No era el objetivo")],
+      [tc("Tsukamoto"), tc("Valor crisp por regla monotona"), tc("Media: mas restrictivo"), tc("Menos intuitivo")],
     ];
     slide.addTable(rows, {
       x: 0.95,
@@ -641,29 +666,29 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       4.4,
       11.45,
       2.4,
-      "Por que Mamdani en este proyecto",
-      "Mamdani es el unico de los tres cuyo consecuente es un conjunto difuso, lo que permite mostrar la curva mu_B(y) y, por tanto, hacer EXPLICABLE el razonamiento paso a paso. Sugeno se usa cuando importa la precision numerica del control y suele acoplarse con tuning automatico (ANFIS), lo que rompe la auditabilidad. Tsukamoto restringe los consecuentes a funciones monotonas, lo cual limita el modelado de categorias como 'riesgo bajo / medio / alto / critico'.",
+      "Razon simple",
+      "Mamdani mantiene palabras humanas hasta el final: riesgo bajo, medio, alto o critico. Despues convierte esa curva en numero. Por eso se puede enseñar, revisar y defender.",
       C.teal,
     );
     slide.addNotes(
-      "Justificar la eleccion frente a Sugeno y Tsukamoto. Subrayar que Mamdani conserva la trazabilidad linguistica de extremo a extremo y por eso es el estandar en sistemas de apoyo a decisiones.",
+      "Idea para exponer: usamos Mamdani porque el objetivo principal no es optimizar control numerico; es explicar una decision academica.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "t-normas y t-conormas", "OPERADORES DIFUSOS FORMALES");
+    addHeader(slide, "Como se combinan condiciones", "AND, OR Y FUERZA DE REGLA");
     const rows: TableRow[] = [
       [
-        tcHead("Familia", C.teal, C.white),
-        tcHead("t-norma  T(a,b)  (AND)", C.teal, C.white),
-        tcHead("t-conorma  S(a,b)  (OR)", C.teal, C.white),
-        tcHead("Caracteristica", C.teal, C.white),
+        tcHead("Idea", C.teal, C.white),
+        tcHead("Formula", C.teal, C.white),
+        tcHead("Traduccion simple", C.teal, C.white),
+        tcHead("Uso en el sistema", C.teal, C.white),
       ],
-      [tc("Zadeh / Godel"), tc("min(a, b)"), tc("max(a, b)"), tc("Idempotente, conservadora")],
-      [tc("Probabilistica"), tc("a * b"), tc("a + b - a*b"), tc("Penaliza ambos operandos")],
-      [tc("Lukasiewicz"), tc("max(0, a + b - 1)"), tc("min(1, a + b)"), tc("Estricta, satura facil")],
+      [tc("AND difuso"), tc("min(a, b)"), tc("La regla pesa lo que pesa su condicion mas debil"), tc("Calcular alpha")],
+      [tc("Union de reglas"), tc("max(a, b)"), tc("Si varias reglas alertan, se conserva la evidencia mas fuerte"), tc("Agregacion")],
+      [tc("Alternativas"), tc("producto, Lukasiewicz"), tc("Validas, pero menos directas para explicar"), tc("No usadas")],
     ];
     slide.addTable(rows, {
       x: 0.95,
@@ -684,8 +709,8 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       4.5,
       5.55,
       2.25,
-      "Eleccion: min / max (Zadeh)",
-      "1) Es la formulacion original de Mamdani.\n2) Idempotencia: dos evidencias iguales no se penalizan dos veces.\n3) Si una sola dimension del estudiante esta mal, el min lo reporta sin diluirlo en un promedio.",
+      "Analogía",
+      "Una cadena aguanta lo que aguanta su eslabon mas debil. Por eso una regla con AND usa min: si una condicion esta floja, la regla completa no puede sonar fuerte.",
       C.teal,
     );
     addCard(
@@ -694,29 +719,29 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       4.5,
       5.75,
       2.25,
-      "Definicion formal",
-      "Una t-norma es T:[0,1]^2 -> [0,1] conmutativa, asociativa, monotona no decreciente y con T(a,1) = a. Una t-conorma S cumple lo mismo con S(a,0) = a. Min y max son el par canonico que preserva idempotencia y compatibilidad logica.",
+      "Defensa tecnica",
+      "Min y max son operadores clasicos de Zadeh. Son deterministas, faciles de auditar y mantienen los grados dentro de [0,1].",
       C.gold,
     );
     slide.addNotes(
-      "Reforzar que la eleccion de min/max no es ingenua: es una eleccion formal entre tres familias canonicas, defendible por idempotencia y conservadurismo. Citar Klir y Yuan 1995.",
+      "Primero explicar con analogia. Luego mencionar que min/max son operadores formales, no una ocurrencia.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Metodos de defuzzificacion", "POR QUE CENTROIDE");
+    addHeader(slide, "Como sale un solo numero", "CENTROIDE");
     const rows: TableRow[] = [
       [
         tcHead("Metodo", C.teal, C.white),
-        tcHead("Idea", C.teal, C.white),
-        tcHead("Comportamiento", C.teal, C.white),
+        tcHead("Idea simple", C.teal, C.white),
+        tcHead("Por que importa", C.teal, C.white),
       ],
-      [tc("Centroide (CoG)"), tc("Centro de masa del area mu_B(y)"), tc("Continuo, suave, sensible a toda la curva")],
-      [tc("Bisector"), tc("Divide el area en dos mitades iguales"), tc("Estable pero ignora forma fina")],
-      [tc("MoM (Mean of Maxima)"), tc("Promedio de y donde mu_B es maxima"), tc("Discontinuo, util en control on/off")],
-      [tc("SoM / LoM"), tc("Menor / mayor y donde mu_B es maxima"), tc("Decisiones extremas, no recomendado para evaluacion")],
+      [tc("Centroide"), tc("Punto de equilibrio del area"), tc("Usa toda la curva, no solo el pico")],
+      [tc("Bisector"), tc("Corta el area en dos mitades"), tc("Estable, pero menos expresivo")],
+      [tc("Mean of Maxima"), tc("Promedia los puntos mas altos"), tc("Puede saltar de golpe")],
+      [tc("SoM / LoM"), tc("Toma extremo menor o mayor"), tc("Demasiado extremo para evaluacion")],
     ];
     slide.addTable(rows, {
       x: 0.95,
@@ -737,24 +762,24 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       4.65,
       11.45,
       2.05,
-      "Por que se eligio centroide",
-      "1) Salida CONTINUA y derivable respecto a las entradas, lo que hace que los sliders muevan el resultado suavemente. 2) Integra TODA la informacion de las reglas activas, sin descartar masa. 3) Es el metodo mas citado en evaluaciones difusas pedagogicas (Ross 2010, Mendel 2017). 4) Costo O(N) con N=101 muestras: una inferencia completa toma <1 ms en JavaScript moderno.",
+      "Por que centroide",
+      "Es como balancear una figura de carton con el dedo. Si el area se carga a la derecha, el riesgo sube. Si se carga a la izquierda, baja. Usa toda la evidencia acumulada por las reglas.",
       C.teal,
     );
     slide.addNotes(
-      "Mencionar que MoM produce saltos discretos cuando alpha cambia, lo que rompe la sensacion de gradualidad del tablero. CoG es la unica eleccion compatible con la promesa visual del sistema.",
+      "No entrar pesado en integrales. La palabra clave es equilibrio: el centroide resume la forma completa de la salida.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Variables linguisticas", "DOMINIO DEL SISTEMA");
+    addHeader(slide, "Que significan las entradas", "LAS CINCO BARRAS");
     const rows: TableRow[] = [
       [
-        tcHead("Variable", C.teal, C.white),
+        tcHead("Barra", C.teal, C.white),
         tcHead("Rango", C.teal, C.white),
-        tcHead("Conjuntos linguisticos", C.teal, C.white),
+        tcHead("Lecturas posibles", C.teal, C.white),
       ],
       ...academicRiskInputs.map((variable): TableRow => [
         tc(variable.label),
@@ -786,12 +811,65 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       6.3,
       11.45,
       0.55,
-      "Salida",
-      "El motor agrega las salidas recortadas y aplica centroide en el universo [0, 100] con paso 1.",
+      "Lectura de la barra",
+      "Cada barra vive en U=[0,100]. 0 significa peor señal, 100 mejor señal. T(x_i) es la escala donde se miden las etiquetas de esa variable.",
       C.gold,
     );
     slide.addNotes(
-      "Mencionar que las cinco entradas modelan dimensiones independientes pero correlacionadas. La salida es la unica variable difusa de respuesta.",
+      "Explicar que x_i es el valor del slider. Las etiquetas bajo/regular/alto no reemplazan el numero: lo interpretan con grados mu.",
+    );
+  }
+
+  pageNum += 1;
+  {
+    const slide = addContentSlide();
+    addHeader(slide, "Como leer una barra", "x_i, T(x_i) Y mu");
+    const avg = inputs.average;
+    const avgDegrees = result.fuzzification.average;
+    const rows: TableRow[] = [
+      [tcHead("Elemento en pantalla", C.teal, C.white), tcHead("Que significa", C.teal, C.white), tcHead("Ejemplo", C.teal, C.white)],
+      [tc("x_1"), tc("Primer dato de entrada: promedio actual"), tc(`x_1 = ${avg}`)],
+      [tc("U=[0,100]"), tc("Rango permitido de la barra"), tc("0 peor señal, 100 mejor señal")],
+      [tc("T(x_1)"), tc("Escala donde se interpretan las etiquetas del promedio"), tc("bajo, regular, alto")],
+      [tc("mu_bajo"), tc("Que tanto el promedio pertenece a 'bajo'"), tc((avgDegrees.low ?? 0).toFixed(2))],
+      [tc("mu_regular"), tc("Que tanto pertenece a 'regular'"), tc((avgDegrees.regular ?? 0).toFixed(2))],
+      [tc("mu_alto"), tc("Que tanto pertenece a 'alto'"), tc((avgDegrees.high ?? 0).toFixed(2))],
+    ];
+    slide.addTable(rows, {
+      x: 0.75,
+      y: 1.55,
+      w: 11.85,
+      h: 3.8,
+      fontSize: 12,
+      color: C.ink,
+      fill: { color: C.panel },
+      border: { type: "solid", color: C.line, pt: 0.7 },
+      margin: 0.08,
+      valign: "middle",
+      colW: [2.1, 6.2, 3.55],
+    });
+    addCard(
+      slide,
+      0.75,
+      5.55,
+      5.75,
+      1.1,
+      "Idea simple",
+      "La barra no decide sola. La barra da el numero; las curvas dicen como leer ese numero.",
+      C.teal,
+    );
+    addCard(
+      slide,
+      6.85,
+      5.55,
+      5.75,
+      1.1,
+      "Ejemplo verbal",
+      `Promedio ${avg}: ${degreeText("average", avgDegrees)}. Puede ser mas de una cosa a la vez, con distinto grado.`,
+      C.gold,
+    );
+    slide.addNotes(
+      "Esta slide responde de donde salen los numeros del panel. La clave: x_i es el valor; mu es la lectura difusa del valor.",
     );
   }
 
@@ -807,9 +885,9 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
   for (const { variable, chartId } of allVariables) {
     pageNum += 1;
     const slide = addContentSlide();
-    addHeader(slide, `Funciones de pertenencia: ${variable.label}`, "FUZZIFICACION");
+    addHeader(slide, `Como se interpreta: ${variable.label}`, "CURVAS DE PERTENENCIA");
     addVariableChart(slide, variable, chartId, 0.95, 1.55, 7.7, 4.9);
-    slide.addText("Parametros formales", {
+    slide.addText("Etiquetas y puntos de corte", {
       x: 9.0,
       y: 1.55,
       w: 3.5,
@@ -855,57 +933,99 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       0.4,
       variable.id === academicRiskOutput.id ? "Espacio de salida" : "Lectura linguistica",
       variable.id === academicRiskOutput.id
-        ? "Universo donde se aplica la agregacion max y la defuzzificacion por centroide."
-        : `Cada valor de ${variable.label.toLowerCase()} activa simultaneamente uno o mas conjuntos con grado parcial.`,
+        ? "Aqui caen las reglas: bajo, medio, alto o critico. El centroide resume esta salida en un numero."
+        : `Si el valor cae entre dos curvas, activa ambas. Por eso el sistema acepta zonas grises en ${variable.label.toLowerCase()}.`,
       C.teal,
     );
     slide.addNotes(
-      `Variable ${variable.label}: explicar que las funciones triangulares y trapezoidales permiten transiciones suaves. Senalar el solape entre conjuntos.`,
+      `Variable ${variable.label}: explicar que una curva alta significa mayor pertenencia. El solape evita cortes bruscos.`,
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Base de reglas IF-THEN", "MOTOR DE INFERENCIA");
+    addHeader(slide, "Reglas IF-THEN", "COMO PIENSA EL SISTEMA");
+    const ruleCounts = academicRiskOutput.terms.map((term) => ({
+      label: term.label,
+      count: academicRiskRules.filter((rule) => rule.consequent.term === term.id).length,
+    }));
     const rows: TableRow[] = [
       [
-        tcHead("Regla", C.teal, C.white),
-        tcHead("Enunciado", C.teal, C.white),
-        tcHead("Consecuente", C.teal, C.white),
+        tcHead("Salida", C.teal, C.white),
+        tcHead("Cuantas reglas apuntan aqui", C.teal, C.white),
+        tcHead("Lectura humana", C.teal, C.white),
       ],
-      ...academicRiskRules.map((rule): TableRow => [
-        tc(rule.id),
-        tc(rule.text),
-        tc(rule.consequent.term, { bold: true, color: riskColorById[rule.consequent.term]?.fill ?? C.ink }),
+      ...ruleCounts.map((row): TableRow => [
+        tc(row.label),
+        tc(row.count),
+        tc(
+          row.label === "bajo"
+            ? "Buen rendimiento o buena constancia reducen la alerta."
+            : row.label === "medio"
+              ? "Señales mixtas: no es grave, pero requiere vigilancia."
+              : row.label === "alto"
+                ? "Varias señales negativas empujan seguimiento temprano."
+                : "Combinaciones severas activan atencion inmediata.",
+        ),
       ]),
     ];
     slide.addTable(rows, {
-      x: 0.6,
+      x: 0.75,
       y: 1.55,
-      w: 12.15,
-      h: 5.05,
-      fontSize: 11,
+      w: 11.85,
+      h: 2.4,
+      fontSize: 12,
       color: C.ink,
       fill: { color: C.panel },
       border: { type: "solid", color: C.line, pt: 0.7 },
       margin: 0.08,
       valign: "middle",
-      colW: [1.0, 9.6, 1.55],
+      colW: [2.0, 2.4, 7.45],
     });
+    addCard(
+      slide,
+      0.75,
+      4.2,
+      5.75,
+      1.05,
+      "Ejemplo de alerta",
+      "IF promedio es bajo AND entregas son insuficientes THEN riesgo es critico.",
+      C.red,
+    );
+    addCard(
+      slide,
+      6.85,
+      4.2,
+      5.75,
+      1.05,
+      "Ejemplo de estabilidad",
+      "IF entregas son completas AND promedio es alto THEN riesgo es bajo.",
+      C.green,
+    );
+    addCard(
+      slide,
+      0.75,
+      5.55,
+      11.85,
+      0.9,
+      "Como se activa una regla",
+      "Cada condicion tiene un grado mu. La fuerza de la regla es alpha = min(condiciones). Si una condicion es debil, la regla completa baja.",
+      C.teal,
+    );
     slide.addNotes(
-      "Recorrer brevemente las reglas. Senalar que son simetricas: cada combinacion negativa empuja a alto/critico y cada combinacion positiva empuja a bajo.",
+      "No leer 30 reglas. Explicar el patron: reglas positivas bajan riesgo, reglas negativas lo suben, y alpha mide cuanta fuerza tiene cada regla.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, `Caso de prueba: ${caseLabel}`, "EJECUCION EN VIVO");
+    addHeader(slide, `Caso de prueba: ${caseLabel}`, "LECTURA PASO A PASO");
     const inputRows: TableRow[] = [
       [
-        tcHead("Entrada", C.teal, C.white),
-        tcHead("Valor", C.teal, C.white),
+        tcHead("Dato", C.teal, C.white),
+        tcHead("Valor del slider", C.teal, C.white),
       ],
       ...describeInputs(inputs).map((row): TableRow => [tc(row.label), tc(row.value)]),
     ];
@@ -925,14 +1045,11 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
     const degreeRows: TableRow[] = [
       [
         tcHead("Variable", C.teal, C.white),
-        tcHead("Conjuntos activos (grado)", C.teal, C.white),
+        tcHead("Como se lee difusamente", C.teal, C.white),
       ],
       ...Object.entries(result.fuzzification).map(([variableId, degrees]): TableRow => {
         const variable = academicRiskInputs.find((item) => item.id === variableId);
-        const text = Object.entries(degrees)
-          .filter(([, value]) => value > 0)
-          .map(([term, value]) => `${term}=${value.toFixed(3)}`)
-          .join(", ");
+        const text = degreeText(variableId, degrees);
         return [tc(variable?.label ?? variableId), tc(text || "ningun conjunto activo")];
       }),
     ];
@@ -955,37 +1072,38 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       5.05,
       11.45,
       1.7,
-      "Lectura",
-      caseDescription,
+      "Lectura general",
+      `${caseDescription} La tabla derecha muestra por que un valor no cae en una sola caja: puede activar dos etiquetas con distinta fuerza.`,
       C.gold,
     );
     slide.addNotes(
-      "Insistir en que los valores no se redondean a categorias rigidas: pueden activar simultaneamente dos o tres conjuntos. La columna derecha muestra esa coactivacion.",
+      "Conectar con la UI: el numero del slider es x_i; los chips mu bajo, mu regular, etc. son estos grados.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Reglas activadas y agregacion", "INFERENCIA SOBRE EL CASO");
+    addHeader(slide, "Reglas que mas pesan", "INFERENCIA SOBRE EL CASO");
     const active = result.ruleActivations
       .filter((activation) => activation.alpha > 0)
       .sort((a, b) => b.alpha - a.alpha);
+    const visibleActive = active.slice(0, 7);
     const ruleRows: TableRow[] = [
       [
         tcHead("Regla", C.teal, C.white),
-        tcHead("alpha", C.teal, C.white),
-        tcHead("Consec.", C.teal, C.white),
-        tcHead("Area", C.teal, C.white),
+        tcHead("Que dice", C.teal, C.white),
+        tcHead("Fuerza", C.teal, C.white),
+        tcHead("Empuja a", C.teal, C.white),
       ],
-      ...active.map((activation): TableRow => [
+      ...visibleActive.map((activation): TableRow => [
         tc(activation.rule.id),
-        tc(activation.alpha.toFixed(3)),
-        tc(activation.rule.consequent.term, {
+        tc(activation.rule.text),
+        tc(`alpha ${activation.alpha.toFixed(2)}`),
+        tc(termLabel("risk", activation.rule.consequent.term), {
           bold: true,
           color: riskColorById[activation.rule.consequent.term]?.fill ?? C.ink,
         }),
-        tc(activation.clippedArea.toFixed(2)),
       ]),
     ];
     slide.addTable(ruleRows, {
@@ -993,13 +1111,13 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       y: 1.55,
       w: 5.6,
       h: 4.6,
-      fontSize: 11,
+      fontSize: 9.5,
       color: C.ink,
       fill: { color: C.panel },
       border: { type: "solid", color: C.line, pt: 0.7 },
       margin: 0.08,
       valign: "middle",
-      colW: [1.0, 1.2, 1.95, 1.45],
+      colW: [0.75, 3.15, 0.9, 0.8],
     });
     const defuzz = findChart(options.chartImages, "defuzzification");
     if (defuzz) {
@@ -1030,18 +1148,18 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       5.7,
       0.85,
       "Centroide",
-      `y* = ${result.centroidNumerator.toFixed(2)} / ${result.centroidDenominator.toFixed(2)} = ${result.centroid.toFixed(2)}`,
+      `Riesgo final = ${result.centroid.toFixed(2)}. Sale del equilibrio de la curva agregada.`,
       C.gold,
     );
     slide.addNotes(
-      "Comentar la regla dominante. Mencionar que el area recortada de cada regla es la masa que entra al numerador del centroide.",
+      "Mostrar solo las reglas mas fuertes. Alpha es fuerza de activacion. La curva de la derecha junta todas las evidencias.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Resultado crisp e interpretacion", "DEFUZZIFICACION");
+    addHeader(slide, "Resultado final", "COMO SE INTERPRETA");
     const tone = riskColorById[result.labelId] ?? riskColorById.medium;
     slide.addShape(pptx.ShapeType.roundRect, {
       x: 0.95,
@@ -1073,7 +1191,7 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       color: C.white,
       align: "center",
     });
-    slide.addText("Resultado crisp en escala 0 - 100", {
+    slide.addText("nivel de alerta en escala 0 - 100", {
       x: 1.05,
       y: 3.95,
       w: 4.5,
@@ -1088,8 +1206,8 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       1.6,
       6.55,
       2.05,
-      "Interpretacion",
-      "El sistema entrega un nivel de alerta academica, no una probabilidad estadistica. La etiqueta linguistica viene del conjunto difuso con mayor grado de pertenencia para y*.",
+      "Lectura rapida",
+      riskSummary(result.labelId),
       C.teal,
     );
     addCard(
@@ -1098,12 +1216,8 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       3.75,
       6.55,
       1.15,
-      "Acciones sugeridas",
-      result.labelId === "critical" || result.labelId === "high"
-        ? "Intervencion temprana: asesoria personalizada, plan de entregas y seguimiento semanal."
-        : result.labelId === "medium"
-          ? "Monitoreo quincenal con foco en las variables con menor grado de pertenencia positiva."
-          : "Reforzar habitos actuales; revisar al cierre del periodo.",
+      "Accion sugerida",
+      riskAction(result.labelId),
       C.gold,
     );
     addCard(
@@ -1112,19 +1226,19 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       5.05,
       11.55,
       1.7,
-      "Trazabilidad",
-      "Cualquier persona puede reproducir el resultado: las cinco entradas se publican, los conjuntos difusos estan definidos en el repositorio y las reglas son visibles en la presentacion. No hay caja negra.",
+      "Como defender este resultado",
+      "No significa porcentaje de reprobar. Significa nivel de alerta segun entradas, curvas y reglas visibles. Se puede reproducir con los mismos cinco valores.",
       C.teal,
     );
     slide.addNotes(
-      "Esta es la slide de cierre tecnico del caso. Senalar que el numero no es estadistico sino un nivel de alerta calculado deterministamente.",
+      "Aclaracion importante: no vender como probabilidad. Es una escala difusa de alerta academica.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Analisis de sensibilidad", "TRES ESCENARIOS CONTRASTANTES");
+    addHeader(slide, "Prueba con tres perfiles", "QUE PASA SI CAMBIAN LOS DATOS");
     sensitivityCases.forEach((kase, index) => {
       const subResult = inferAcademicRisk(kase.inputs, 1);
       const tone = riskColorById[subResult.labelId] ?? riskColorById.medium;
@@ -1165,7 +1279,7 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
         color: tone.fill,
         align: "left",
       });
-      slide.addText(`Etiqueta: ${subResult.label}`, {
+      slide.addText(`Riesgo ${subResult.label}`, {
         x: x + 0.15,
         y: 3.2,
         w: 3.4,
@@ -1188,26 +1302,26 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       });
     });
     slide.addNotes(
-      "Mostrar que con la misma base de reglas obtenemos resultados muy distintos. Sirve para defender que el modelo discrimina escenarios reales.",
+      "Mostrar que las mismas reglas responden distinto ante perfiles distintos. No hay trucos: cambian entradas, cambia la alerta.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Difuso vs umbrales rigidos", "VALIDACION CONCEPTUAL");
+    addHeader(slide, "Por que no usar reglas duras", "DIFUSO VS IF-ELSE");
     const compRows: TableRow[] = [
       [
         tcHead("Criterio", C.teal, C.white),
         tcHead("Reglas rigidas", C.teal, C.white),
         tcHead("Sistema difuso Mamdani", C.teal, C.white),
       ],
-      [tc("Granularidad"), tc("Salto discreto entre clases"), tc("Transicion suave entre conjuntos")],
-      [tc("Trazabilidad"), tc("Solo el umbral disparado"), tc("Todas las reglas activadas con su grado")],
-      [tc("Sensibilidad a cambios pequenos"), tc("Alta cerca del umbral"), tc("Baja: cambios graduales en la salida")],
+      [tc("Cambio cerca del limite"), tc("Salta de golpe"), tc("Cambia poco a poco")],
+      [tc("Explicacion"), tc("Solo dice que umbral paso"), tc("Muestra grados y reglas activas")],
+      [tc("Caso mixto"), tc("Cuesta combinar señales"), tc("Acepta varias etiquetas a la vez")],
       [tc("Datos historicos requeridos"), tc("Ninguno"), tc("Ninguno")],
-      [tc("Auditabilidad academica"), tc("Limitada"), tc("Total: cada paso es reproducible")],
-      [tc("Explicabilidad a stakeholders"), tc("Dificil cuando hay multiples variables"), tc("Inmediata: reglas en lenguaje natural")],
+      [tc("Auditabilidad"), tc("Limitada"), tc("Cada paso es reproducible")],
+      [tc("Uso academico"), tc("Rigido para zonas grises"), tc("Natural para bajo/regular/alto")],
     ];
     slide.addTable(compRows, {
       x: 0.95,
@@ -1229,26 +1343,26 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       11.45,
       0.75,
       "Conclusion",
-      "Ambos enfoques son deterministas, pero solo el difuso entrega graduacion, coactivacion de reglas y trazabilidad completa para uso academico.",
+      "Un if-else sirve para cortes simples. Este problema necesita gradualidad porque los estudiantes reales tienen señales mezcladas.",
       C.gold,
     );
     slide.addNotes(
-      "Sirve para anticipar la pregunta 'por que no un if-else simple'. Insistir en que un if-else falla en la zona de frontera entre clases.",
+      "Usar el ejemplo 59 vs 60. El sistema difuso evita que un punto de diferencia cambie toda la lectura.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Limitaciones y trabajo futuro", "HONESTIDAD INTELECTUAL");
+    addHeader(slide, "Limites honestos", "QUE NO PROMETE");
     addBullets(
       slide,
       [
-        "Las funciones de pertenencia se calibran con criterio experto, no con datos. Necesitan revision periodica.",
-        "La base de reglas crece de forma combinatoria; mas variables exigirian metareglas o jerarquias.",
-        "El sistema no reemplaza al tutor: produce alertas que requieren validacion humana.",
-        "El centroide puede ser sensible si la curva agregada es muy plana; conviene reportar tambien el grado dominante.",
-        "Trabajo futuro: tuning automatico (ANFIS), integracion con datos de plataforma LMS, evaluacion longitudinal por semestre.",
+        "No predice el futuro. Evalua el caso actual con reglas definidas.",
+        "No es probabilidad estadistica de reprobar. Es nivel de alerta.",
+        "No reemplaza al docente o tutor. Ordena evidencia para decidir mejor.",
+        "Depende de curvas y reglas calibradas. Si se ajustan, cambia el resultado.",
+        "Trabajo futuro: conectar datos LMS, validar con expertos y ajustar parametros con evidencia historica.",
       ],
       0.95,
       1.6,
@@ -1262,28 +1376,28 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       11.45,
       0.7,
       "Recordatorio",
-      "El alcance del proyecto es producir un sistema explicable. No compite con modelos de ML: complementa cuando se necesita defensibilidad.",
+      "La fuerza del proyecto es explicabilidad. No intenta competir con ML; resuelve cuando importa poder justificar cada paso.",
       C.teal,
     );
     slide.addNotes(
-      "Aceptar limites refuerza la credibilidad. Senalar el camino hacia ANFIS como evolucion natural sin abandonar el principio difuso.",
+      "Ser claro con limites hace mas defendible el sistema. No prometer prediccion, prometer trazabilidad.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Propiedades formales del sistema", "GARANTIAS MATEMATICAS");
+    addHeader(slide, "Por que se puede confiar", "PROPIEDADES CLAVE");
     addBullets(
       slide,
       [
-        "Determinismo: identicas entradas producen identica salida. No hay estocasticidad ni inicializacion aleatoria.",
-        "Cota: y* en [0, 100] por construccion, porque mu_B(y) esta soportada en [0,100].",
-        "Continuidad: y* es continuo respecto a las entradas (funciones piecewise-lineales + min/max + suma de Riemann).",
-        "Idempotencia: min(a, a) = a y max(a, a) = a, evitando doble penalizacion de evidencias coincidentes.",
-        "Epsilon-completitud: para todo x en [0,100] existe al menos un termino con mu(x) > 0 (Lee, 1990). Sin zonas ciegas.",
-        "Trazabilidad total: cada paso intermedio (fuzzificacion, alpha, area, centroide) es inspeccionable en la UI y en los apendices.",
-        "Complejidad: O(|R| * N) = O(10 * 101) por inferencia, < 1 ms en JavaScript.",
+        "Determinista: mismas entradas producen el mismo resultado.",
+        "Acotado: el riesgo siempre queda en [0,100].",
+        "Gradual: mover un slider cambia el resultado suavemente.",
+        "Explicable: se ven pertenencias, reglas, alpha, curva agregada y centroide.",
+        "Sin zonas ciegas: las curvas se solapan para cubrir el rango.",
+        "Rapido: solo usa operaciones min, max y sumas; no requiere entrenamiento.",
+        "Auditable: el motor TypeScript, el reporte y la presentacion usan la misma fuente.",
       ],
       0.95,
       1.6,
@@ -1297,27 +1411,27 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       6.2,
       11.45,
       0.7,
-      "Implicacion academica",
-      "Estas propiedades son CONSECUENCIAS MATEMATICAS de la construccion, no resultados empiricos. No dependen del conjunto de entrenamiento porque no existe entrenamiento.",
+      "Traduccion",
+      "No pedimos fe en un modelo oculto. El comportamiento sale de reglas y funciones visibles.",
       C.teal,
     );
     slide.addNotes(
-      "Insistir en que la diferencia con los modelos de ML supervisado es estructural: aqui las garantias se prueban, no se miden. Citar Klir y Yuan 1995, Lee 1990.",
+      "Enfatizar que estas propiedades no dependen de entrenamiento. Son consecuencia directa del diseño difuso.",
     );
   }
 
   pageNum += 1;
   {
     const slide = addContentSlide();
-    addHeader(slide, "Conclusiones", "MENSAJES A LLEVAR");
+    addHeader(slide, "Conclusiones", "MENSAJES PARA CERRAR");
     addBullets(
       slide,
       [
-        "La logica difusa permite representar transiciones graduales entre niveles academicos.",
-        "El sistema es transparente: cada regla, grado y recorte es visible.",
-        "La arquitectura separa motor, interfaz, reporte LaTeX y presentacion PPTX sin duplicar logica.",
-        "El proyecto queda defendible porque no usa aprendizaje automatico ni prediccion estadistica.",
-        "Tres entregables se generan al vuelo desde el mismo motor: web, PDF academico y presentacion.",
+        "El riesgo academico es gradual; por eso la logica difusa encaja mejor que cortes rigidos.",
+        "Cada barra se interpreta con grados mu, no con una sola etiqueta forzada.",
+        "Las reglas IF-THEN convierten criterio docente en calculo reproducible.",
+        "El centroide resume toda la evidencia en un numero claro de 0 a 100.",
+        "El sistema es defendible porque muestra el camino completo desde dato hasta resultado.",
       ],
       0.95,
       1.6,
@@ -1330,8 +1444,8 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       5.4,
       5.5,
       1.4,
-      "Entregables automatizados",
-      "App web interactiva, motor TypeScript determinista, reporte LaTeX validado y presentacion PowerPoint editable.",
+      "Frase final",
+      "No es una caja negra: es una lupa ordenada para leer señales academicas mezcladas.",
       C.teal,
     );
     addCard(
@@ -1340,12 +1454,12 @@ export async function buildPresentation(options: BuildPresentationOptions = {}) 
       5.4,
       5.75,
       1.4,
-      "Contacto",
+      "Entregables",
       `${author}\nMaestria En Ciencias Computacionales\nInstituto Tecnologico de Tijuana`,
       C.gold,
     );
     slide.addNotes(
-      "Slide final. Resumir en una frase: 'es difuso, es transparente y se entrega completo'. Cerrar con disposicion a preguntas.",
+      "Cerrar con una frase: el valor del sistema no es solo calcular, sino explicar por que calcula eso.",
     );
   }
 

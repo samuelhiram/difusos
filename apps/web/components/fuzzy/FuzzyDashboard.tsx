@@ -16,6 +16,7 @@ import { InterpretationPanel } from "@/components/fuzzy/InterpretationPanel";
 import { NotationLegend } from "@/components/fuzzy/NotationLegend";
 import { GuidedTour, type GuidedTourStep } from "@/components/fuzzy/GuidedTour";
 import { HowToUseDialog } from "@/components/fuzzy/HowToUseDialog";
+import { ExplanationDialog } from "@/components/fuzzy/ExplanationDialog";
 import { useFuzzyStore } from "@/lib/use-fuzzy-store";
 
 const TOUR_STORAGE_KEY = "fuzzy-tour-seen-v1";
@@ -71,8 +72,8 @@ const tourSteps: GuidedTourStep[] = [
     placement: "left",
     body: (
       <span>
-        Las pestanas <strong>Sistema</strong>, <strong>Funciones</strong>, <strong>Reglas</strong> y{" "}
-        <strong>Formulas</strong> te dejan profundizar en cada etapa del pipeline Mamdani.
+        Las pestañas <strong>Mapa</strong>, <strong>Curvas</strong>, <strong>Reglas</strong> y{" "}
+        <strong>Matematica</strong> te dejan profundizar en cada etapa del pipeline Mamdani.
       </span>
     ),
   },
@@ -100,10 +101,11 @@ const tourSteps: GuidedTourStep[] = [
 ];
 
 export function FuzzyDashboard() {
-  const { values, setValue, reset } = useFuzzyStore();
+  const { values, setValue, setValues, reset } = useFuzzyStore();
   const result = useMemo(() => inferAcademicRisk(values, 1), [values]);
   const [tourOpen, setTourOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [explanationOpen, setExplanationOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -121,54 +123,62 @@ export function FuzzyDashboard() {
 
   function openTour() {
     setHelpOpen(false);
+    setExplanationOpen(false);
     setTourOpen(true);
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-[1680px] flex-col gap-3 px-4 py-3 lg:px-6">
+    <main className="mx-auto flex min-h-screen w-full max-w-[1680px] flex-col gap-4 px-4 py-3 lg:px-6">
       <AppHeader
         values={values}
         result={result}
         onOpenHelp={() => setHelpOpen(true)}
+        onOpenExplanation={() => setExplanationOpen(true)}
         onStartTour={openTour}
         onReset={reset}
       />
 
       <HeroResult result={result} />
 
-      <section className="grid gap-3 xl:grid-cols-[360px_minmax(0,1fr)]">
-        <div className="space-y-3">
-          <InputPanel values={values} onValueChange={setValue} fuzzification={result.fuzzification} />
+      <section className="grid gap-4 xl:grid-cols-[380px_minmax(0,1fr)]">
+        <div className="space-y-4">
+          <InputPanel values={values} onValueChange={setValue} onValuesChange={setValues} fuzzification={result.fuzzification} />
           <InterpretationPanel result={result} />
           <NotationLegend />
         </div>
 
         <Tabs defaultValue="sistema" data-tour="workspace-tabs" className="min-w-0">
+          <div className="mb-2 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 className="text-sm font-semibold tracking-tight text-foreground">Explora el resultado</h2>
+              <p className="text-[12px] text-muted-foreground">Empieza por el mapa, luego mira curvas y reglas.</p>
+            </div>
+          </div>
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="sistema" className="gap-1.5">
-              <Workflow className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Sistema</span>
+              <Workflow className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Mapa</span>
             </TabsTrigger>
             <TabsTrigger value="funciones" className="gap-1.5">
-              <Gauge className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Funciones</span>
+              <Gauge className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Curvas</span>
             </TabsTrigger>
             <TabsTrigger value="reglas" className="gap-1.5">
               <ListChecks className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Reglas</span>
             </TabsTrigger>
             <TabsTrigger value="formulas" className="gap-1.5">
-              <Sigma className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Formulas</span>
+              <Sigma className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Matematica</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="sistema" className="space-y-3">
+          <TabsContent value="sistema" className="space-y-4">
             <RuleGraph result={result} />
-            <div className="grid gap-3 2xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
               <DefuzzificationChart result={result} />
               <InferenceTimeline result={result} />
             </div>
           </TabsContent>
 
           <TabsContent value="funciones">
-            <div className="grid gap-3 2xl:grid-cols-2">
+            <div className="grid gap-4 2xl:grid-cols-2">
               {academicRiskInputs.map((variable) => (
                 <MembershipChart
                   key={variable.id}
@@ -202,6 +212,7 @@ export function FuzzyDashboard() {
       </footer>
 
       <HowToUseDialog open={helpOpen} onOpenChange={setHelpOpen} onStartTour={openTour} />
+      <ExplanationDialog open={explanationOpen} onOpenChange={setExplanationOpen} />
       <GuidedTour open={tourOpen} steps={tourSteps} onClose={closeTour} />
     </main>
   );

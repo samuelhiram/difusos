@@ -119,7 +119,7 @@ export const academicRiskRules: FuzzyRule[] = [
     ],
     consequent: { variable: "risk", term: "high" },
     text: "IF promedio es bajo AND participacion es baja THEN riesgo es alto",
-    justification: "Bajo desempeno y poca participacion limitan recuperacion academica.",
+    justification: "Bajo desempeño y poca participacion limitan recuperacion academica.",
   },
   {
     id: "R11",
@@ -129,7 +129,7 @@ export const academicRiskRules: FuzzyRule[] = [
     ],
     consequent: { variable: "risk", term: "high" },
     text: "IF promedio es bajo AND asistencia es media THEN riesgo es alto",
-    justification: "Aun con asistencia regular, el bajo desempeno academico mantiene el riesgo elevado.",
+    justification: "Aun con asistencia regular, el bajo desempeño academico mantiene el riesgo elevado.",
   },
   {
     id: "R12",

@@ -21,18 +21,18 @@ export function DefuzzificationChart({ result }: DefuzzificationChartProps) {
   return (
     <Section
       data-tour="defuzz-chart"
-      title="Salida agregada y centroide"
-      description="Area mu_B(y) tras recorte y agregacion. El centroide condensa todo en un numero."
+      title="Como se forma el numero final"
+      description="La sombra junta las reglas; la linea marca el punto de equilibrio del riesgo."
       icon={<Crosshair className="h-4 w-4" />}
     >
       <div className="space-y-3">
-        <div className="h-[330px] w-full rounded-md border bg-background">
+        <div className="h-[340px] w-full rounded-md border bg-background">
           <DefuzzificationChartCanvas result={result} />
         </div>
         <div className="grid gap-2 sm:grid-cols-3">
-          <Stat label="Numerador" value={result.centroidNumerator.toFixed(3)} hint="sum y mu(y)" />
-          <Stat label="Denominador" value={result.centroidDenominator.toFixed(3)} hint="sum mu(y)" />
-          <Stat label="Crisp y*" value={result.centroid.toFixed(3)} tone="primary" hint="CoG" />
+          <Stat label="Peso del riesgo" value={result.centroidNumerator.toFixed(3)} hint="sum y mu(y)" />
+          <Stat label="Evidencia total" value={result.centroidDenominator.toFixed(3)} hint="sum mu(y)" />
+          <Stat label="Numero final" value={result.centroid.toFixed(3)} tone="primary" hint="centroide" />
         </div>
       </div>
     </Section>

@@ -14,6 +14,7 @@ const defaults: AcademicRiskInputValues = {
 type FuzzyStore = {
   values: AcademicRiskInputValues;
   setValue: (key: keyof AcademicRiskInputValues, value: number) => void;
+  setValues: (values: AcademicRiskInputValues) => void;
   reset: () => void;
 };
 
@@ -26,5 +27,6 @@ export const useFuzzyStore = create<FuzzyStore>((set) => ({
         [key]: Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0)),
       },
     })),
+  setValues: (values) => set({ values }),
   reset: () => set({ values: defaults }),
 }));

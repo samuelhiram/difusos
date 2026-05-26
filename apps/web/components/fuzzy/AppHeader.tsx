@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BookOpen, BrainCircuit, RotateCcw, Sparkles } from "lucide-react";
+import { BookOpen, BrainCircuit, Lightbulb, RotateCcw, Sparkles } from "lucide-react";
 import type { AcademicRiskInputValues, MamdaniResult } from "@academic-risk/fuzzy-core";
 import { Button } from "@/components/ui/button";
 import { ExportMenu } from "@/components/fuzzy/ExportMenu";
@@ -10,19 +10,20 @@ type AppHeaderProps = {
   values: AcademicRiskInputValues;
   result: MamdaniResult;
   onOpenHelp: () => void;
+  onOpenExplanation: () => void;
   onStartTour: () => void;
   onReset: () => void;
 };
 
-export function AppHeader({ values, result, onOpenHelp, onStartTour, onReset }: AppHeaderProps) {
+export function AppHeader({ values, result, onOpenHelp, onOpenExplanation, onStartTour, onReset }: AppHeaderProps) {
   return (
     <header
       data-tour="app-header"
-      className="sticky top-0 z-30 -mx-4 mb-2 flex flex-wrap items-center justify-between gap-3 border-b border-border/70 bg-background/85 px-4 py-2.5 backdrop-blur-md lg:-mx-6 lg:px-6"
+      className="sticky top-0 z-30 -mx-4 flex flex-wrap items-center justify-between gap-3 border-b border-border/70 bg-background/85 px-4 py-2.5 backdrop-blur-md lg:-mx-6 lg:px-6"
     >
       <div className="flex items-center gap-3">
         <span className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-teal-700 text-primary-foreground shadow-lg shadow-primary/30">
-          <BrainCircuit className="h-4.5 w-4.5" />
+          <BrainCircuit className="h-[18px] w-[18px]" />
           <span className="absolute -bottom-1 -right-1 inline-flex h-3 w-3 items-center justify-center rounded-full border-2 border-background bg-amber-400" />
         </span>
         <div className="leading-tight">
@@ -58,6 +59,16 @@ export function AppHeader({ values, result, onOpenHelp, onStartTour, onReset }: 
           <BookOpen className="h-4 w-4" />
           <span className="hidden sm:inline">Como usar?</span>
           <span className="sm:hidden">Ayuda</span>
+        </Button>
+        <Button
+          variant="outline"
+          size="default"
+          onClick={onOpenExplanation}
+          className="gap-2 border-secondary/60 text-foreground hover:bg-secondary/15"
+          data-tour="btn-explanation"
+        >
+          <Lightbulb className="h-4 w-4 text-secondary" />
+          <span>Explicacion</span>
         </Button>
         <ExportMenu values={values} result={result} />
         <Button

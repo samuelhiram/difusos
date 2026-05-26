@@ -14,13 +14,13 @@ type InferenceTimelineProps = {
 };
 
 const steps = [
-  "Entradas X",
-  "Fuzzificacion mu(x)",
-  "Reglas R_r",
-  "Recorte alpha",
-  "Agregacion max",
-  "Centroide y*",
-  "Etiqueta L",
+  "Datos",
+  "Grados μ",
+  "Reglas",
+  "Fuerza α",
+  "Union",
+  "Numero final",
+  "Etiqueta",
 ];
 
 function formalAntecedent(a: RuleActivation["antecedentDegrees"][number]): string {
@@ -45,8 +45,8 @@ export function InferenceTimeline({ result, expanded = false }: InferenceTimelin
 
   return (
     <Section
-      title="Inferencia y trazabilidad"
-      description={`${activeCount} reglas activas de ${activations.length} - operador AND=min, agregacion max`}
+      title="Reglas que explican el resultado"
+      description={`${activeCount} de ${activations.length} reglas aportan evidencia. La fuerza alpha dice cuanto pesa cada una.`}
       icon={<BrainCircuit className="h-4 w-4" />}
     >
       <div className="space-y-3">
@@ -70,10 +70,10 @@ export function InferenceTimeline({ result, expanded = false }: InferenceTimelin
           <table className="w-full min-w-[680px] text-sm">
             <thead className="bg-muted text-left text-[10.5px] uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="w-14 px-3 py-2">R<sub>r</sub></th>
-                <th className="px-3 py-2">Predicado formal &amp; alpha</th>
-                <th className="w-32 px-3 py-2">alpha<sub>r</sub></th>
-                <th className="w-20 px-3 py-2">Area</th>
+                <th className="w-14 px-3 py-2">Regla</th>
+                <th className="px-3 py-2">Que dice</th>
+                <th className="w-36 px-3 py-2">Fuerza</th>
+                <th className="w-24 px-3 py-2">Aporta</th>
               </tr>
             </thead>
             <tbody>
@@ -86,13 +86,11 @@ export function InferenceTimeline({ result, expanded = false }: InferenceTimelin
                       {activation.rule.id}
                     </td>
                     <td className="px-3 py-2">
-                      <div className="overflow-x-auto">
-                        <InlineMath math={formalRule(activation)} />
+                      <div className="text-[12.5px] font-medium leading-snug text-foreground">{activation.rule.text}</div>
+                      <div className="mt-1 text-[11.5px] leading-snug text-muted-foreground">{activation.rule.justification}</div>
+                      <div className="mt-1.5 overflow-x-auto text-[11px] text-muted-foreground/80">
+                        <InlineMath math={formalRule(activation)} /> · <InlineMath math={formalAlpha(activation)} />
                       </div>
-                      <div className="mt-1 overflow-x-auto text-muted-foreground">
-                        <InlineMath math={formalAlpha(activation)} />
-                      </div>
-                      <div className="mt-1 text-[11px] italic text-muted-foreground/80">{activation.rule.text}</div>
                     </td>
                     <td className="px-3 py-2">
                       <div className="flex items-center gap-2">
@@ -104,7 +102,10 @@ export function InferenceTimeline({ result, expanded = false }: InferenceTimelin
                         </div>
                       </div>
                     </td>
-                    <td className="px-3 py-2 tabular-nums text-[12.5px]">{activation.clippedArea.toFixed(2)}</td>
+                    <td className="px-3 py-2">
+                      <div className="tabular-nums text-[12.5px] font-medium">{activation.clippedArea.toFixed(2)}</div>
+                      <div className="text-[10.5px] text-muted-foreground">area</div>
+                    </td>
                   </tr>
                 );
               })}

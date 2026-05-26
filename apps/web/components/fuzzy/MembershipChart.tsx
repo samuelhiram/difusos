@@ -23,10 +23,14 @@ type MembershipChartProps = {
 };
 
 export function MembershipChart({ variable, value, degrees }: MembershipChartProps) {
+  const strongest = variable.terms
+    .map((term) => ({ term, grade: degrees[term.id] ?? 0 }))
+    .sort((a, b) => b.grade - a.grade)[0];
+
   return (
     <Section
       title={variable.label}
-      description={`Funciones de pertenencia mu(x). Valor actual: x = ${value.toFixed(0)}`}
+      description={`El valor ${value.toFixed(0)} se lee principalmente como ${strongest?.term.label ?? "sin etiqueta"}.`}
       icon={<Gauge className="h-4 w-4" />}
       tone="default"
       actions={
@@ -38,6 +42,9 @@ export function MembershipChart({ variable, value, degrees }: MembershipChartPro
       <div className="space-y-3">
         <div className="h-56 w-full rounded-md border bg-background">
           <MembershipChartCanvas variable={variable} value={value} />
+        </div>
+        <div className="rounded-md border bg-muted/30 px-2.5 py-2 text-[12px] text-muted-foreground">
+          La linea vertical es el valor actual. Mientras mas alta toca una curva, mas pertenece a esa etiqueta.
         </div>
         <div className="flex flex-wrap gap-2">
           {variable.terms.map((term, index) => {
