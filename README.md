@@ -1,69 +1,72 @@
-# Sistema Difuso Mamdani para Riesgo Academico
+# Fuzzy Academic Risk System
 
-Sistema difuso clasico Mamdani (sin ML) para estimar riesgo academico de 0 a 100 en cinco variables: promedio, asistencia, entregas, participacion, examenes.
+> Classic Mamdani fuzzy inference that scores student academic risk from 0 to 100 — no machine learning.
 
-App interactiva en Next.js con descargas integradas: **presentacion PPTX editable**, **reporte LaTeX en PDF** y **resumen ejecutivo del caso actual**.
+A deterministic Mamdani fuzzy system that estimates academic risk from five inputs: grade average,
+attendance, assignment submissions, participation and exams. It ships as an interactive Next.js app
+that also generates its own deliverables — an editable PPTX deck, a LaTeX report compiled to PDF,
+and an executive summary of whatever case is currently on screen.
 
-## Pasos minimos para levantar el proyecto
+**Status:** Complete · Coursework · **Stack:** TypeScript monorepo (Next.js + LaTeX + pptxgenjs)
 
-Prerequisitos: **Node.js 18+** y **pnpm**. Si no tienes pnpm:
+## Why no machine learning
 
-```powershell
-npm install -g pnpm
+Triangular and trapezoidal membership functions, IF-THEN rules, `AND` as minimum, aggregation as
+maximum, centroid defuzzification. Every output traces back to the rules that produced it — which is
+the point of a classic fuzzy system, and the reason it is preferable to a black box when a human has
+to justify the score to the student it describes.
+
+## Quick start
+
+Prerequisites: **Node.js 18+** and **pnpm** (`npm install -g pnpm`).
+
+```bash
+git clone <repo-url>
+cd sistema-difuso-riesgo-academico
+
+pnpm bootstrap    # deps + Tectonic + PDF + PPTX
+pnpm start        # http://localhost:3000
 ```
 
-Luego, desde la raiz del repo:
+`pnpm bootstrap` is idempotent — re-running it only redoes what changed. The first run takes about
+two minutes because it downloads roughly 500 MB of LaTeX packages, which are then cached. If the
+LaTeX report PDF is not needed, Tectonic can be skipped entirely; bootstrap only fetches it when a
+compile is actually going to happen.
 
-```powershell
-# 1. Clonar el repo y entrar a la carpeta
-git clone <url-del-repo>
-cd difusos
+## Commands
 
-# 2. Setup completo (instala deps, baja Tectonic, compila PDF y PPTX)
-pnpm bootstrap
-
-# 3. Arrancar el dev server
-pnpm start
-```
-
-Abrir [http://localhost:3000](http://localhost:3000) en el navegador.
-
-> `pnpm bootstrap` es idempotente: si lo corres de nuevo, solo rehace lo que cambio. Primera vez tarda ~2 min (descarga ~500 MB de paquetes LaTeX, queda cacheado). Si no necesitas el PDF del reporte LaTeX, puedes omitir Tectonic; el bootstrap lo descarga automaticamente solo si vas a compilar.
-
-## Comandos
-
-| Comando | Que hace |
+| Command | What it does |
 |---|---|
-| `pnpm bootstrap` | Setup completo: deps + Tectonic + PDF + PPTX |
-| `pnpm start` | Dev server en `http://localhost:3000` |
-| `pnpm build` | Production build del web |
-| `pnpm typecheck` | tsc en todos los paquetes |
-| `pnpm report:publish` | Recompila el PDF y lo copia a `apps/web/public/` |
-| `pnpm presentation` | Regenera el `.pptx` por defecto |
-| `pnpm report:open` | Abre el PDF compilado |
+| `pnpm bootstrap` | Full setup: deps + Tectonic + PDF + PPTX |
+| `pnpm start` | Dev server on `http://localhost:3000` |
+| `pnpm build` | Production build of the web app |
+| `pnpm typecheck` | `tsc` across every package |
+| `pnpm report:publish` | Recompile the PDF and copy it into `apps/web/public/` |
+| `pnpm presentation` | Regenerate the default `.pptx` |
+| `pnpm report:open` | Open the compiled PDF |
 
-## Estructura
+## Architecture
 
 ```
-apps/web                    Next.js + Recharts + KaTeX (UI y descargas)
-packages/fuzzy-core         Motor Mamdani TypeScript (fuente unica)
-packages/report             LaTeX + PGFPlots, compilado con Tectonic
-packages/presentation       Generador PPTX (pptxgenjs)
-scripts/                    setup.ps1, build-report.ps1, publish-report.ps1
+apps/web                Next.js + Recharts + KaTeX (UI and downloads)
+packages/fuzzy-core     Mamdani engine in TypeScript — single source of truth
+packages/report         LaTeX + PGFPlots, compiled with Tectonic
+packages/presentation   PPTX generator (pptxgenjs)
+scripts/                setup.ps1, build-report.ps1, publish-report.ps1
 ```
 
-El motor TS es la fuente de verdad. Un script `emit-data` lee de `fuzzy-core` y emite las tablas, datos numericos y curvas que consume el LaTeX. Cambiar el motor y recompilar regenera todo en cadena.
+The TypeScript engine is the source of truth. An `emit-data` script reads from `fuzzy-core` and
+emits the tables, numeric data and curves that the LaTeX consumes. Change the engine, recompile, and
+everything downstream regenerates in a chain — so the report can never drift from the implementation
+it describes.
 
-## Descargas desde la UI
+## Downloads from the UI
 
-| Boton | Como se genera | Necesita PDF compilado |
+| Button | How it is generated | Needs a compiled PDF |
 |---|---|---|
-| Presentacion (.pptx) | `pptxgenjs` en el navegador con los inputs vivos | No |
-| Resumen del caso (.pdf) | `jsPDF` en el navegador con los inputs vivos | No |
-| Reporte LaTeX (.pdf) | Estatico desde `apps/web/public/` | Si |
+| Presentation (`.pptx`) | `pptxgenjs` in the browser, from live inputs | No |
+| Case summary (`.pdf`) | `jsPDF` in the browser, from live inputs | No |
+| LaTeX report (`.pdf`) | Served statically from `apps/web/public/` | Yes |
 
-Si todavia no corriste `pnpm bootstrap` o `pnpm report:publish`, el boton del reporte LaTeX no encuentra el PDF y muestra un mensaje claro.
-
-## No usa machine learning
-
-Funciones triangulares y trapezoidales, reglas IF-THEN, AND minimo, agregacion maximo, defuzzificacion centroide. Todo determinista y auditable.
+Before `pnpm bootstrap` or `pnpm report:publish` has run, the LaTeX report button cannot find its
+PDF and says so explicitly rather than failing silently.
